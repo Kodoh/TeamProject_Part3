@@ -132,6 +132,23 @@ app.post('/textChat/groupMessages', (req, res) => {
     res.send(groupMessage);
 });
 
+
+// Make new group 
+app.post('/textChat/groups', (req, res) => {
+    if (!req.body.name) {
+        //404 
+        res.status(400).send('Ensure that "name" is added');
+    }
+
+    const group = {
+        id: groups.length + 1,
+        name : req.body.name
+    };
+
+    groups.push(group);
+    res.send(group);
+});
+
 // DELETE
 
 
