@@ -132,6 +132,7 @@ app.post('/textChat/groupMessages', (req, res) => {
     res.send(groupMessage);
 });
 
+// DELETE
 
 
 // Deleting private messages based of ID
@@ -155,7 +156,35 @@ app.delete('/textChat/groupMessages/:id', (req,res) => {
     res.send(groupMessage);
 });
 
+// PUT
 
+// Updating private messages
+app.put('/textChat/private/:id', (req,res) => {
+    const privateMessage = privateMessages.find(c => c.id === parseInt(req.params.id));
+    if (!privateMessage) res.status(404).send(`Could not find any messages with ID - '${req.params.id}'`); // 404 NOT FOUND
+
+    privateMessage.contents = req.body.contents;
+    res.send(privateMessage);
+});
+
+// Updating group messages
+app.put('/textChat/groupMessages/:id', (req,res) => {
+    const groupMessage = groupMessages.find(c => c.id === parseInt(req.params.id));
+    if (!groupMessage) res.status(404).send(`Could not find any messages with ID - '${req.params.id}'`); // 404 NOT FOUND
+
+    groupMessage.contents = req.body.contents;
+    res.send(groupMessage);
+});
+
+
+// Updating group names
+app.put('/textChat/groups/:id', (req,res) => {
+    const group = groups.find(c => c.id === parseInt(req.params.id));
+    if (!group) res.status(404).send(`Could not find group chat '${req.params.id}'`); // 404 NOT FOUND
+
+    group.name = req.body.name;
+    res.send(group);
+});
 
 
 
