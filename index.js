@@ -1,8 +1,17 @@
 const express = require('express');
-
-
+const mysql = require('mysql');
 const app = express();
 
+
+// Create a connection to the database
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'Red011002',
+    database: "ExpressIntegration"       
+  });
+ 
+  
 app.use(express.json());        // MIDDLEWARE
 
 // For testing purposes 
@@ -209,4 +218,4 @@ app.put('/textChat/groups/:id', (req,res) => {
 
 // Dynamic port (3000 by default) --> use `export PORT = {portNo}` to change 
 const PORT = process.env.PORT || 3000;      
-app.listen(PORT, () => console.log(`server is now listening on port ${PORT}`));
+app.listen(PORT, () => console.log(`server and database is now listening on port ${PORT}`));
