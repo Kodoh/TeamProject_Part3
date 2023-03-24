@@ -20,61 +20,52 @@ USE `mydb` ;
 -- -----------------------------------------------------
 -- Table `mydb`.`User`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`User` (
-  `idUser` INT NOT NULL AUTO_INCREMENT,
-  `Name` VARCHAR(45) NULL,
-  `Password` VARCHAR(45) NULL,
-  PRIMARY KEY (`idUser`))
-ENGINE = InnoDB;
-
+CREATE TABLE `user` (
+  `idUser` int NOT NULL AUTO_INCREMENT,
+  `Name` varchar(45) DEFAULT NULL,
+  `Password` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`idUser`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3
 
 -- -----------------------------------------------------
 -- Table `mydb`.`Group`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Group` (
-  `idGroup` INT NOT NULL,
-  `Name` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`idGroup`))
-ENGINE = InnoDB;
+CREATE TABLE `group` (
+  `idGroup` int NOT NULL,
+  `Name` varchar(45) NOT NULL,
+  `Private` tinyint NOT NULL,
+  PRIMARY KEY (`idGroup`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
 
 
 -- -----------------------------------------------------
 -- Table `mydb`.`Membership`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Membership` (
-  `User_idUser` INT NOT NULL,
-  `Group_idGroup` INT NOT NULL,
-  PRIMARY KEY (`User_idUser`, `Group_idGroup`),
-  INDEX `fk_Membership_User1_idx` (`User_idUser` ASC) VISIBLE,
-  INDEX `fk_Membership_Group1_idx` (`Group_idGroup` ASC) VISIBLE,
-  CONSTRAINT `fk_Membership_User1`
-    FOREIGN KEY (`User_idUser`)
-    REFERENCES `mydb`.`User` (`idUser`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Membership_Group1`
-    FOREIGN KEY (`Group_idGroup`)
-    REFERENCES `mydb`.`Group` (`idGroup`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+CREATE TABLE `membership` (
+  `User_idUser` int NOT NULL,
+  `Group_idGroup` int NOT NULL,
+  PRIMARY KEY (`User_idUser`,`Group_idGroup`),
+  KEY `fk_Membership_User1_idx` (`User_idUser`),
+  KEY `fk_Membership_Group1_idx` (`Group_idGroup`),
+  CONSTRAINT `fk_Membership_Group1` FOREIGN KEY (`Group_idGroup`) REFERENCES `group` (`idGroup`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_Membership_User1` FOREIGN KEY (`User_idUser`) REFERENCES `user` (`idUser`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
 
 
 -- -----------------------------------------------------
 -- Table `mydb`.`Messages`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Messages` (
-  `idMessages` INT NOT NULL AUTO_INCREMENT,
-  `Contents` LONGTEXT NULL,
-  `Group_idGroup` INT NOT NULL,
-  PRIMARY KEY (`idMessages`, `Group_idGroup`),
-  INDEX `fk_Messages_Group1_idx` (`Group_idGroup` ASC) VISIBLE,
-  CONSTRAINT `fk_Messages_Group1`
-    FOREIGN KEY (`Group_idGroup`)
-    REFERENCES `mydb`.`Group` (`idGroup`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+CREATE TABLE `messages` (
+  `idMessages` int NOT NULL AUTO_INCREMENT,
+  `Contents` longtext,
+  `Group_idGroup` int NOT NULL,
+  `Sender` int NOT NULL,
+  PRIMARY KEY (`idMessages`,`Group_idGroup`,`Sender`),
+  KEY `fk_Messages_Group1_idx` (`Group_idGroup`),
+  KEY `fk_Messages_User1_idx` (`Sender`),
+  CONSTRAINT `fk_Messages_Group1` FOREIGN KEY (`Group_idGroup`) REFERENCES `group` (`idGroup`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_Messages_User1` FOREIGN KEY (`Sender`) REFERENCES `user` (`idUser`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
