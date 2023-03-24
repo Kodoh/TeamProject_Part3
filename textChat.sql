@@ -30,6 +30,8 @@ CREATE TABLE `user` (
 -- -----------------------------------------------------
 -- Table `mydb`.`Group`
 -- -----------------------------------------------------
+
+
 CREATE TABLE `group` (
   `idGroup` int NOT NULL,
   `Name` varchar(45) NOT NULL,
@@ -38,9 +40,11 @@ CREATE TABLE `group` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
 
 
+
 -- -----------------------------------------------------
 -- Table `mydb`.`Membership`
 -- -----------------------------------------------------
+
 CREATE TABLE `membership` (
   `User_idUser` int NOT NULL,
   `Group_idGroup` int NOT NULL,
@@ -52,9 +56,11 @@ CREATE TABLE `membership` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
 
 
+
 -- -----------------------------------------------------
 -- Table `mydb`.`Messages`
 -- -----------------------------------------------------
+
 CREATE TABLE `messages` (
   `idMessages` int NOT NULL AUTO_INCREMENT,
   `Contents` longtext,
@@ -66,6 +72,7 @@ CREATE TABLE `messages` (
   CONSTRAINT `fk_Messages_Group1` FOREIGN KEY (`Group_idGroup`) REFERENCES `group` (`idGroup`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_Messages_User1` FOREIGN KEY (`Sender`) REFERENCES `user` (`idUser`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3
+
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
