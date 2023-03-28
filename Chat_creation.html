@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat System</title>
+  <link rel="stylesheet" href="chat_creation_styles.css">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</head>
+<body>
+  <header>
+    <div class="content">
+      <h1 style="text-align: center;">Create a new chat</h1>
+    </div>
+  </header>
+  <section class="create-chat">
+    <div class="content">
+      <form id="createChatForm">
+        <label for="employees">Select employees:</label>
+        <select id="employees" class="select2" multiple>
+          <!-- Add your employee options here -->
+          <option value="employee1">Employee 1</option>
+          <option value="employee2">Employee 2</option>
+          <option value="employee3">Employee 3</option>
+        </select>
+        <button type="submit">Create Chat</button>
+      </form>
+    </div>
+  </section>
+  <section class="chat-list">
+    <div class="content">
+      <h2>Existing chats:</h2>
+      <ul id="chatList">
+        <!-- Existing chats will be appended here -->
+      </ul>
+    </div>
+  </section>
+  <script src="chat_create.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const selectElement = document.querySelector('.select2');
+      const select2Instance = new Select2(selectElement, {
+        placeholder: 'Select employees',
+        width: '100%',
+      });
+    });
+  </script>
+</body>
+</html>
