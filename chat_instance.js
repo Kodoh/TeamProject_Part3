@@ -37,15 +37,11 @@ let lastSender = '';
     });
     // event listeners for opening and closing settings button
     document.addEventListener('DOMContentLoaded', () => {
-        // Move other event listeners inside the DOMContentLoaded event listener
         document.getElementById('sendMessageForm').addEventListener('submit', function (e) {
-          // ... (rest of the code)
         });
       
         document.getElementById('settingsButton').addEventListener('click', function () { 
           document.querySelector('.settings-overlay').classList.remove('hidden');
-          
-          // Add the event listener for the update chat name button here
           const updateChatNameButton = document.getElementById('updateChatName');
           const chatNameInput = document.getElementById('chatName');
           const chatTitle = document.querySelector('header h1');

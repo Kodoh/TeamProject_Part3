@@ -11,19 +11,21 @@
 <body>
   <header>
     <div class="content">
-      <h1 style="text-align: center;">Create a new chat</h1>
+      <h1>Create a new chat</h1>
     </div>
   </header>
   <section class="create-chat">
     <div class="content">
       <form id="createChatForm">
         <label for="employees">Select employees:</label>
-        <select id="employees" class="select2" multiple>
-          <!-- Add your employee options here -->
-          <option value="employee1">Employee 1</option>
-          <option value="employee2">Employee 2</option>
-          <option value="employee3">Employee 3</option>
-        </select>
+        <div class="form-content">
+          <select id="employees" class="select2" multiple>
+            <!-- Add your employee options here -->
+            <option value="employee1">Employee 1</option>
+            <option value="employee2">Employee 2</option>
+            <option value="employee3">Employee 3</option>
+          </select>
+        </div>
         <button type="submit">Create Chat</button>
       </form>
     </div>
@@ -38,12 +40,8 @@
   </section>
   <script src="chat_create.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const selectElement = document.querySelector('.select2');
-      const select2Instance = new Select2(selectElement, {
-        placeholder: 'Select employees',
-        width: '100%',
-      });
+    document.addEventListener('DOMContentLoaded', () => {
+      $('#employees').select2();
     });
   </script>
 </body>
