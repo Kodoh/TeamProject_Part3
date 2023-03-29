@@ -6,6 +6,8 @@ const textChat = require('../services/textChat');
 
 
 // GET
+
+// Get Group messages for user with user id - :id eg - `localhost:3000/textChat/groupMessages/1` will return all messages associated with user 1
 router.get('/groupMessages/:id', async function(req, res, next) {
   try {
     res.json(await textChat.getGroupMessages(1,req.params.id));
@@ -16,6 +18,8 @@ router.get('/groupMessages/:id', async function(req, res, next) {
 });
 
 
+// Returns all the groups that user :id is in 
+
 router.get('/membership/:id', async function(req, res, next) {
   try {
     res.json(await textChat.getMembership(1,req.params.id));
@@ -24,6 +28,8 @@ router.get('/membership/:id', async function(req, res, next) {
     next(err);
   }
 });
+
+// returns all the private messages that a user (:id) has
 
 router.get('/privateMessages/:id', async function(req, res, next) {
   try {
@@ -34,6 +40,7 @@ router.get('/privateMessages/:id', async function(req, res, next) {
   }
 });
 
+// returns all group info `localhost:3000/textChat/groups`
 
 router.get('/groups', async function(req, res, next) {
   try {
@@ -44,6 +51,8 @@ router.get('/groups', async function(req, res, next) {
   }
 });
 
+// returns all info associated with the group with :id
+
 router.get('/groups/:id', async function(req, res, next) {
   try {
     res.json(await textChat.getGroups(1,req.params.id));
@@ -52,6 +61,8 @@ router.get('/groups/:id', async function(req, res, next) {
     next(err);
   }
 });
+
+// Returns all private groups info
 
 router.get('/private', async function(req, res, next) {
   try {
@@ -63,6 +74,8 @@ router.get('/private', async function(req, res, next) {
 });
 
 
+// Returns info to do with private group associated with :id
+
 router.get('/private/:id', async function(req, res, next) {
   try {
     res.json(await textChat.getAllPrivate());
@@ -72,7 +85,7 @@ router.get('/private/:id', async function(req, res, next) {
   }
 });
 
-
+// Returns all private messages
 
 router.get('/privateMessages', async function(req, res, next) {
   try {
@@ -83,6 +96,8 @@ router.get('/privateMessages', async function(req, res, next) {
   }
 });
 
+// returns info on all users
+
 router.get('/users', async function(req, res, next) {
   try {
     res.json(await textChat.getAllUsers());
@@ -91,6 +106,8 @@ router.get('/users', async function(req, res, next) {
     next(err);
   }
 });
+
+// Returns info to do with user with :id 
 
 router.get('/users/:id', async function(req, res, next) {
   try {
@@ -104,6 +121,8 @@ router.get('/users/:id', async function(req, res, next) {
 
 // POST
 
+
+// Adds new user --> so in body add something like {name: "frank", password: "test"}
 router.post('/users', async function(req, res, next) {
   try {
     res.json(await textChat.createUser(req.body));
@@ -112,6 +131,8 @@ router.post('/users', async function(req, res, next) {
     next(err);
   }
 });
+
+// Adds new message --> body = {Contents: "hello", Group_idGroup: 1, Sender: 2}
 
 router.post('/messages', async function(req, res, next) {
   try {
@@ -122,6 +143,8 @@ router.post('/messages', async function(req, res, next) {
   }
 });
 
+
+// Adds membership --> body = {userId: 1, groupId: 2}
 router.post('/membership', async function(req, res, next) {
   try {
     res.json(await textChat.createMembership(req.body));
@@ -131,11 +154,23 @@ router.post('/membership', async function(req, res, next) {
   }
 });
 
-router.post('/groupMessages', async function(req, res, next) {
+// adds new group  --> body = {Name: "Group1"}        !! Note I was having some issues with this so let me know if it is working for you (same for /private)
+
+router.post('/groups', async function(req, res, next) {
   try {
     res.json(await textChat.createGroup(req.body));
   } catch (err) {
-    console.error(`Error while creating group message`, err.message);
+    console.error(`Error while creating group`, err.message);
+    next(err);
+  }
+});
+
+// same as above
+router.post('/private', async function(req, res, next) {
+  try {
+    res.json(await textChat.createPrivate(req.body));
+  } catch (err) {
+    console.error(`Error while creating private group`, err.message);
     next(err);
   }
 });
@@ -143,6 +178,8 @@ router.post('/groupMessages', async function(req, res, next) {
 
 // DELETE
 
+
+// delete message with :id
 router.delete('/messages/:id', async function(req, res, next) {
   try {
     res.json(await textChat.removeMessage(req.params.id));
@@ -152,6 +189,8 @@ router.delete('/messages/:id', async function(req, res, next) {
   }
 });
 
+
+// delete membership --> body = {userId: 1, groupId: 2}
 router.delete('/membership', async function(req, res, next) {
   try {
     res.json(await textChat.removeMembership(req.body));
@@ -161,6 +200,8 @@ router.delete('/membership', async function(req, res, next) {
   }
 });
 
+
+// delete user :id
 router.delete('/users/:id', async function(req, res, next) {
   try {
     res.json(await textChat.removeUser(req.params.id));
@@ -169,6 +210,8 @@ router.delete('/users/:id', async function(req, res, next) {
     next(err);
   }
 });
+
+// delete group :id
 
 router.delete('/groups/:id', async function(req, res, next) {
   try {
@@ -183,6 +226,9 @@ router.delete('/groups/:id', async function(req, res, next) {
 
 // PUT
 
+// add bodys for PUT will have the same format as their POST counterpart
+
+// modify user with :id + body
 router.put('/users/:id', async function(req, res, next) {
   try {
     res.json(await textChat.updateUser(req.params.id, req.body));
@@ -192,6 +238,8 @@ router.put('/users/:id', async function(req, res, next) {
   }
 });
 
+// modify group with :id + body
+
 router.put('/groups/:id', async function(req, res, next) {
   try {
     res.json(await textChat.updateGroup(req.params.id, req.body));
@@ -200,6 +248,8 @@ router.put('/groups/:id', async function(req, res, next) {
     next(err);
   }
 });
+
+// modify message with :id + body
 
 router.put('/messages/:id', async function(req, res, next) {
   try {

@@ -183,7 +183,7 @@ async function createUser(user){
     `INSERT INTO user 
     (Name, Password) 
     VALUES 
-    ('${user.Name}', '${user.Password}')`
+    ('${user.name}', '${user.password}')`
   );
 
   let message = 'Error in creating new user';
@@ -402,5 +402,6 @@ module.exports = {
   updateMessage,
   updateUser,
   updateGroup,
-  getGroups
+  getGroups,
+  createPrivate
 }
