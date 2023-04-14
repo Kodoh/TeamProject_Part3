@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const textChatRouter = require("./routes/textChat");
+const textChatRouter = require("./TextChat/routes/textChat");
 
 app.use(express.json());       
 
