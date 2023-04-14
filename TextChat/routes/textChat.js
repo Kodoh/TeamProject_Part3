@@ -1,7 +1,8 @@
 const { text } = require('express');
 const express = require('express');
+const Joi = require('joi');
 const router = express.Router();
-const textChat = require('../../services/textChat');
+const textChat = require('../services/textChat');
 
 
 
@@ -124,6 +125,13 @@ router.get('/users/:id', async function(req, res, next) {
 
 // Adds new user --> so in body add something like {name: "frank", password: "test"}
 router.post('/users', async function(req, res, next) {
+  
+  const { error } = validateUser(req.body);
+  if (error) {
+    res.status(400).send(error.details[0].message);
+    return;
+  }
+
   try {
     res.json(await textChat.createUser(req.body));
   } catch (err) {
@@ -135,6 +143,13 @@ router.post('/users', async function(req, res, next) {
 // Adds new message --> body = {Contents: "hello", Group_idGroup: 1, Sender: 2}
 
 router.post('/messages', async function(req, res, next) {
+
+  const { error } = validateMessage(req.body);
+  if (error) {
+    res.status(400).send(error.details[0].message);
+    return;
+  }
+
   try {
     res.json(await textChat.createMessage(req.body));
   } catch (err) {
@@ -146,6 +161,13 @@ router.post('/messages', async function(req, res, next) {
 
 // Adds membership --> body = {userId: 1, groupId: 2}
 router.post('/membership', async function(req, res, next) {
+
+  const { error } = validateMembership(req.body);
+  if (error) {
+    res.status(400).send(error.details[0].message);
+    return;
+  }
+
   try {
     res.json(await textChat.createMembership(req.body));
   } catch (err) {
@@ -157,6 +179,13 @@ router.post('/membership', async function(req, res, next) {
 // adds new group  --> body = {Name: "Group1"}        !! Note I was having some issues with this so let me know if it is working for you (same for /private)
 
 router.post('/groups', async function(req, res, next) {
+
+  const { error } = validateGroup(req.body);
+  if (error) {
+    res.status(400).send(error.details[0].message);
+    return;
+  }
+
   try {
     res.json(await textChat.createGroup(req.body));
   } catch (err) {
@@ -167,6 +196,13 @@ router.post('/groups', async function(req, res, next) {
 
 // same as above
 router.post('/private', async function(req, res, next) {
+
+  const { error } = validateGroup(req.body);
+  if (error) {
+    res.status(400).send(error.details[0].message);
+    return;
+  }
+
   try {
     res.json(await textChat.createPrivate(req.body));
   } catch (err) {
@@ -230,6 +266,11 @@ router.delete('/groups/:id', async function(req, res, next) {
 
 // modify user with :id + body
 router.put('/users/:id', async function(req, res, next) {
+  const { error } = validateUser(req.body);
+  if (error) {
+    res.status(400).send(error.details[0].message);
+    return;
+  }
   try {
     res.json(await textChat.updateUser(req.params.id, req.body));
   } catch (err) {
@@ -241,6 +282,13 @@ router.put('/users/:id', async function(req, res, next) {
 // modify group with :id + body
 
 router.put('/groups/:id', async function(req, res, next) {
+  
+  const { error } = validateGroup(req.body);
+  if (error) {
+    res.status(400).send(error.details[0].message);
+    return;
+  }
+
   try {
     res.json(await textChat.updateGroup(req.params.id, req.body));
   } catch (err) {
@@ -252,6 +300,12 @@ router.put('/groups/:id', async function(req, res, next) {
 // modify message with :id + body
 
 router.put('/messages/:id', async function(req, res, next) {
+  const { error } = validateMessage(req.body);
+  if (error) {
+    res.status(400).send(error.details[0].message);
+    return;
+  }
+
   try {
     res.json(await textChat.updateMessage(req.params.id, req.body));
   } catch (err) {
@@ -260,6 +314,60 @@ router.put('/messages/:id', async function(req, res, next) {
   }
 });
 
+function validateUser(user) {
+  const schema = {
+    name: Joi.string()
+    .regex(/^[a-zA-Z]*$/, 'Characters only')
+    .min(3)
+    .max(30)
+    .required(),
 
+    password: Joi.string()
+    .regex(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,'8 Characters long, atleast - 1 capital letter, 1 lowercase, 1 special char, 1 number')
+    .required()
+  };
+
+  return Joi.validate(user,schema)
+}
+
+function validateMessage(message) {
+  const schema = {
+    Contents: Joi.string()
+    .min(1)
+    .max(140)
+    .required(),
+
+    Group_idGroup: Joi.number()
+    .required(),
+
+    Sender: Joi.number()
+    .required(),
+  };
+
+  return Joi.validate(message,schema);
+}
+
+function validateMembership(membership) {
+  const schema = {
+    userId: Joi.number()
+    .required(),
+
+    groupId: Joi.number()
+    .required(),
+
+  };
+  return Joi.validate(membership.body,schema);
+}
+
+function validateGroup(group) {
+  const schema = {
+    Name: Joi.string()
+    .alphanum()
+    .min(3)
+    .max(30)
+    .required(),
+  };
+  return Joi.validate(group,schema);
+}
 
 module.exports = router;
