@@ -13,3 +13,4 @@ app.use("/textChat", textChatRouter);
 // Dynamic port (3000 by default) --> use `export PORT = {portNo}` to change 
 const PORT = process.env.PORT || 3000;      
 app.listen(PORT, () => console.log(`server and database is now listening on port ${PORT}`));
+module.exports = app;
