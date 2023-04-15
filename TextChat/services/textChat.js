@@ -335,7 +335,7 @@ async function updateMessage(id, newMessage){
     WHERE idMessages=${id}` 
   );
 
-  let message = 'Error in updating message';
+  let message = 'Error in updating message - Id does not exist';
 
   if (result.affectedRows) {
     message = 'message updated successfully';
@@ -352,7 +352,7 @@ async function updateUser(id, user){
     WHERE idUser=${id}` 
   );
 
-  let message = 'Error in updating user';
+  let message = 'Error in updating user - Id does not exist';
 
   if (result.affectedRows) {
     message = 'User updated successfully';
@@ -369,7 +369,7 @@ async function updateGroup(id, group){
     WHERE idGroup=${id}` 
   );
 
-  let message = 'Error in updating group';
+  let message = 'Error in updating group - Id does not exist';
 
   if (result.affectedRows) {
     message = 'Group updated successfully';
@@ -390,6 +390,7 @@ module.exports = {
   getAllUsers,
   getUser,
   createUser,
+  createMembership,
   createMessage,
   createGroup,
   removeMessage,
