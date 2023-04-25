@@ -219,3 +219,57 @@ describe('GET', () => {
   });
 
 });
+
+
+describe("POST", () => {
+  const newValidUser = {
+    "name": "Jake", 
+    "password": "test^%*!(Ffnwenf12)"
+  }
+  it("should add a new user", async () => {
+    const response = await request(app).post("/textChat/users").send(newValidUser);
+    const message = response.body.message["status"]
+    expect(message).toEqual('user created successfully')
+    expect(response.statusCode).toEqual(200);
+  });
+
+  const newInvalidUser = {
+    "name": "Jake", 
+    "password": "test"
+  }
+
+  it("should not allow invalid password", async () => {
+    const response = await request(app).post("/textChat/users").send(newInvalidUser);
+    const message = response.text
+    expect(message).toEqual("\"password\" with value \"test\" fails to match the 8 Characters long, atleast - 1 capital letter, 1 lowercase, 1 special char, 1 number pattern")
+    expect(response.statusCode).toEqual(400);
+  });
+});
+
+
+
+describe("DELETE", () => {
+  it("Should delete user", async () => {
+    const newValidUser = {
+      "name": "Jake", 
+      "password": "test^%*!(Ffnwenf12)"
+    }
+    let response = await request(app).post("/textChat/users").send(newValidUser);
+    let message = response.body.message["status"]
+    const id = response.body.message["newId"]
+    expect(message).toEqual('user created successfully')
+    response = await request(app).delete(`/textChat/users/${id}`)
+    message = response.body.message;
+    expect(message).toEqual("User deleted successfully");
+    expect(response.statusCode).toEqual(200);
+    response = await request(app).get(`/textChat/users/${id}`)
+    expect(response.body.data.length).toEqual(0);
+    expect(response.statusCode).toEqual(200);
+  });
+
+
+
+
+});
+
+

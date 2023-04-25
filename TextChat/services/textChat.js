@@ -189,7 +189,7 @@ async function createUser(user){
   let message = 'Error in creating new user';
 
   if (result.affectedRows) {
-    message = 'user created successfully';
+    message = {"status" : 'user created successfully', "newId": result.insertId};
   }
 
   return {message};
