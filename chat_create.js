@@ -14,3 +14,6 @@ document.getElementById('createChatForm').addEventListener('submit', function (e
     chatList.appendChild(newChat);
   });
   
+  document.addEventListener('DOMContentLoaded', () => {
+    $('#employees').select2();
+  });
