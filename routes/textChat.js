@@ -132,6 +132,22 @@ router.post('/users', async function(req, res, next) {
   }
 });
 
+router.post('/api/validateUserId', async (req, res) => {
+  try {
+    const user = await getUser(1, req.body.userId);
+
+    if (user.data.length > 0) {
+      req.session.userId = req.body.userId;
+      res.status(200).send();
+    } else {
+      res.status(401).send();
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send();
+  }
+});
+
 // Adds new message --> body = {Contents: "hello", Group_idGroup: 1, Sender: 2}
 
 router.post('/messages', async function(req, res, next) {

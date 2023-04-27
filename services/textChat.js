@@ -176,7 +176,28 @@ async function getUser(page = 1,req){
 
 // POST
 
+async function loginUser() {
+  const userId = document.getElementById("userId").value;
 
+  try {
+    const response = await fetch('/textChat/validateUserId', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ userId })
+    });
+
+    if (response.status === 200) {
+      window.location.href = "/chatCreationPage.html";
+    } else {
+      alert("Invalid User ID");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    alert("An error occurred. Please try again.");
+  }
+}
 
 async function createUser(user){
   const result = await db.query(
