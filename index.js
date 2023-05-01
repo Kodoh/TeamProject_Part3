@@ -1,7 +1,20 @@
 const express = require('express');
 
+//const mysql = require('mysql2');
 
 const app = express();
+const dataAnalyticsRouter = require("./routes/dataAnalytics");
+
+
+/*
+
+// database connection
+const conn = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'Jn3Flw70!',
+    database: 'mydb'
+});
 
 app.use(express.json());        // MIDDLEWARE
 
@@ -68,9 +81,7 @@ app.get('/dataAnalytics/employees', (req, res) => { // gets all employees
     res.send(employee);
 })
 
-/*app.get('/dataAnalytics/employeeAtIndex/:index', (req,res) =>{
-    res.send(employee.at(1));
-})*/
+
 
 app.get('/dataAnalytics/teams', (req, res) => { // gets all teams
     res.send(teams);
@@ -156,11 +167,12 @@ app.post('/dataAnalytics/addTask', (req, res) => { // add new task
     };
     tasks.push(newTask);
     res.send(tasks);
-})
+} )
 
-
+app.use(express.json());
+app.use("",dataAnalyticsRouter);
 
 
 // Dynamic port (3000 by default) --> use `export PORT = {portNo}` to change 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;      
 app.listen(PORT, () => console.log(`server is now listening on port ${PORT}`));
