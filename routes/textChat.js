@@ -132,7 +132,7 @@ router.post('/users', async function(req, res, next) {
   }
 });
 
-router.post('/api/validateUserId', async (req, res) => {
+router.post('validateUserId', async (req, res) => {
   try {
     const user = await getUser(1, req.body.userId);
 

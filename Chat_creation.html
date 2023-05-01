@@ -36,9 +36,20 @@
   <section class="chat-list">
     <div class="content">
       <h2>Existing chats:</h2>
-      <ul id="chatList">
-        <!-- Existing chats will be appended here -->
-      </ul>
+      <div class="public-private-chats">
+        <div class="public-chats">
+          <h3>Public Chats</h3>
+          <ul id="publicChatList">
+            <!-- Existing public chats will be appended here -->
+          </ul>
+        </div>
+        <div class="private-chats">
+          <h3>Private Chats</h3>
+          <ul id="privateChatList">
+            <!-- Existing private chats will be appended here -->
+          </ul>
+        </div>
+      </div>
     </div>
   </section>
   <script src="chat_create.js"></script>
