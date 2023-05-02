@@ -46,10 +46,30 @@ let lastSender = '';
           const chatNameInput = document.getElementById('chatName');
           const chatTitle = document.querySelector('header h1');
         
-          updateChatNameButton.addEventListener('click', () => {
+          updateChatNameButton.addEventListener('click', async () => {
             const newChatName = chatNameInput.value.trim();
             if (newChatName) {
               chatTitle.textContent = newChatName;
+              
+              // Get the chatId from the URL
+              const urlParams = new URLSearchParams(window.location.search);
+              const chatId = urlParams.get('chatId');
+          
+              // Update the group name in the database
+              try {
+                const response = await fetch(`/groups/${chatId}`, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ name: newChatName }),
+                });
+          
+                const responseData = await response.json();
+                console.log(responseData.message);
+              } catch (error) {
+                console.error('Error updating group name:', error);
+              }
             }
           });
         });
@@ -61,8 +81,28 @@ let lastSender = '';
         document.getElementById('backButton').addEventListener('click', function () {
             window.location.href = 'Chat_creation.html';
         });    
-      });
 
+        document.getElementById('leaveChat').addEventListener('click', async () => { // removes user membership from specific group
+          const userId = sessionStorage.getItem('userId');
+          const urlParams = new URLSearchParams(window.location.search);
+          const chatId = urlParams.get('chatId');
       
+          try {
+            const response = await fetch('/membership', {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ userId: userId, groupId: chatId }),
+            });
+      
+            const responseData = await response.json();
+            console.log(responseData.message);
+      
+            window.location.href = 'Chat_creation.html';
+          } catch (error) {
+            console.error('Error while deleting membership:', error);
+          }
+        });
 
-      
+      }); 

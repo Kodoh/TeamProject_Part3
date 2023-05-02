@@ -60,7 +60,11 @@ async function fetchPrivateMessages(userId) {
 function displayChats(chats) {
   const publicChatList = document.getElementById('publicChatList');
   const privateChatList = document.getElementById('privateChatList');
-  
+
+  // Clear the existing chat lists
+  publicChatList.innerHTML = '';
+  privateChatList.innerHTML = '';
+
   chats.forEach((chat) => {
     const newChat = document.createElement('li');
     newChat.textContent = `Chat with ${chat.participants}`;
