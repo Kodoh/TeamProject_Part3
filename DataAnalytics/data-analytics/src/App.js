@@ -1,6 +1,6 @@
 import './App.css';
 import { Progress, Heading, CircularProgress, CircularProgressLabel } from '@chakra-ui/react';
-import { createColumnHelper } from '@tanstack/react-table';
+import { createColumnHelper, useSortBy  } from '@tanstack/react-table';
 import { DataTable } from './DataTable';
 import { Avatar, AvatarBadge, AvatarGroup } from '@chakra-ui/react'
 
@@ -37,11 +37,13 @@ const columns = [
     }),
     columnHelper.accessor("employee", {
         cell: (info) => info.getValue(),
-        header: "Employee"
+        header: "Employee",
+        sortType: "basic",
     }),
     columnHelper.accessor("email", {
         cell: (info) => info.getValue(),
-        header: "Email"
+        header: "Email",
+        sortType: "basic",
     }),
     columnHelper.accessor("since", {
         cell: (info) => info.getValue(),
@@ -50,9 +52,9 @@ const columns = [
     columnHelper.accessor("role", {
         cell: (info) => info.getValue(),
         header: "Role",
+        sortType: "basic",
     })
 ];
-
 
 function App() {
     return (
