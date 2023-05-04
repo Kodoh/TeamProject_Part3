@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f2f5;
+    }
+
+    .login-container {
+      background-color: white;
+      padding: 1rem 2rem;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .login-container h2 {
+      margin: 0 0 1rem;
+    }
+
+    .form-control {
+      margin-bottom: 1rem;
+    }
+
+    .form-control label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control input {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+  </style>
+  </head>
+    <body>
+        <div class="login-container">
+        <h2>Login</h2>
+        <div class="form-control">
+            <label for="userId">User ID:</label>
+            <input type="text" id="userId" required />
+        </div>
+        <button onclick="loginUser()">Login</button>
+        </div>
+    </body>
+
+<script>
+  async function loginUser() {
+    const userId = document.getElementById("userId").value;
+    const baseUrl = `http://localhost:8383/textChat/users/${userId}`
+    console.log(baseUrl)
+    try {
+      const res = await fetch(baseUrl,
+      {
+        method: 'GET'
+      })
+      const data = await res.json()
+      if (data.data[0]) {
+        sessionStorage.setItem('userId', userId); // Store the user ID in sessionStorage
+        window.location.href = "http://localhost:8383/chat_creation.html";
+      } else {
+        alert("Invalid User ID");
+      }
+  } catch (error) {
+    console.error("Error:", error);
+    alert("An error occurred. Please try again.");
+  }
+  }
+  </script>
+</html>

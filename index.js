@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const textChatRouter = require("./TextChat/routes/textChat");
 
+
 app.use(express.json());       
 
 
@@ -9,8 +10,8 @@ app.use(express.json());
 // Index.js is then used as a root file (easier to follow)
 
 app.use("/textChat", textChatRouter);
-
+app.use(express.static('./TextChat/public'))
 // Dynamic port (3000 by default) --> use `export PORT = {portNo}` to change 
-const PORT = process.env.PORT || 3000;      
+const PORT = process.env.PORT || 8383;      
 app.listen(PORT, () => console.log(`server and database is now listening on port ${PORT}`));
 module.exports = app;

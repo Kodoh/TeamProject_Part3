@@ -52,6 +52,18 @@ router.get('/groups', async function(req, res, next) {
   }
 });
 
+
+// returns all users in group :id
+
+router.get('/groups/users/:id', async function(req, res, next) {
+  try {
+    res.json(await textChat.getGroupMembership(1,req.params.id));
+  } catch (err) {
+    console.error(`Error while getting groups `, err.message);
+    next(err);
+  }
+});
+
 // returns all info associated with the group with :id
 
 router.get('/groups/:id', async function(req, res, next) {
@@ -79,7 +91,7 @@ router.get('/private', async function(req, res, next) {
 
 router.get('/private/:id', async function(req, res, next) {
   try {
-    res.json(await textChat.getAllPrivate());
+    res.json(await textChat.getPrivate(1,req.params.id));
   } catch (err) {
     console.error(`Error while getting private messages `, err.message);
     next(err);

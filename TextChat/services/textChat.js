@@ -118,6 +118,21 @@ async function getGroups(page = 1,req){
   }
 }
 
+async function getGroupMembership(page = 1,req){
+  const offset = helper.getOffset(page, config.listPerPage);
+  const rows = await db.query(
+    `SELECT * FROM user WHERE idUser IN (SELECT User_idUser FROM membership WHERE Group_idGroup = ${req})`
+  );
+  const data = helper.emptyOrRows(rows);
+  const meta = {page};
+
+  return {
+    data,
+    meta
+  }
+}
+
+
 async function getAllPrivate(page = 1){
   const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
@@ -384,6 +399,7 @@ async function updateGroup(id, group){
 module.exports = {
   getAll,
   getGroupMessages,
+  getPrivate,
   getPrivateMessages,
   getAllGroupMessages,
   getAllPrivateMessages,
@@ -404,5 +420,6 @@ module.exports = {
   updateUser,
   updateGroup,
   getGroups,
-  createPrivate
+  createPrivate,
+  getGroupMembership
 }
