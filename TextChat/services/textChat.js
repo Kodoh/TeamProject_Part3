@@ -161,6 +161,22 @@ async function getPrivate(page = 1,req){
   }
 }
 
+
+async function getMessagesForGroup(page = 1,req){
+  const offset = helper.getOffset(page, config.listPerPage);
+  const rows = await db.query(
+    `SELECT * FROM messages WHERE Group_idGroup = ${req}`
+  );
+  const data = helper.emptyOrRows(rows);
+  const meta = {page};
+
+  return {
+    data,
+    meta
+  }
+}
+
+
 async function getAllUsers(page = 1){
   const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
@@ -423,5 +439,6 @@ module.exports = {
   updateGroup,
   getGroups,
   createPrivate,
-  getGroupMembership
+  getGroupMembership,
+  getMessagesForGroup
 }

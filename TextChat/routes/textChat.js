@@ -86,6 +86,17 @@ router.get('/private', async function(req, res, next) {
   }
 });
 
+// returns all messages for group :id
+router.get('/groups/message/:id', async function(req, res, next) {
+  try {
+    res.json(await textChat.getMessagesForGroup(1,req.params.id));
+  } catch (err) {
+    console.error(`Error while getting groups `, err.message);
+    next(err);
+  }
+});
+
+
 
 // Returns info to do with private group associated with user :id
 
