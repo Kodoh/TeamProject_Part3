@@ -244,6 +244,20 @@ describe("POST", () => {
     expect(message).toEqual("\"password\" with value \"test\" fails to match the 8 Characters long, atleast - 1 capital letter, 1 lowercase, 1 special char, 1 number pattern")
     expect(response.statusCode).toEqual(400);
   });
+
+  const newValidMessage = {
+    "Contents": "hello", 
+    "Group_idGroup": 1,
+    "Sender": 2
+  }
+
+  it("should add a new message", async () => {
+    const response = await request(app).post("/textChat/messages").send(newValidMessage);
+    const message = response.body.message["status"]
+    expect(message).toEqual('message created successfully')
+    expect(response.statusCode).toEqual(200);
+  })
+
 });
 
 
@@ -267,7 +281,24 @@ describe("DELETE", () => {
     expect(response.statusCode).toEqual(200);
   });
 
-
+  it("Should delete message", async () => {
+    const newValidMessage = {
+      "Contents": "hello", 
+      "Group_idGroup": 1, 
+      "Sender": 2
+    }
+    let response = await request(app).post("/textChat/messages").send(newValidMessage);
+    let message = response.body.message["status"]
+    const id = response.body.message["newId"]
+    expect(message).toEqual('message created successfully')
+    response = await request(app).delete(`/textChat/messages/${id}`)
+    message = response.body.message;
+    expect(message).toEqual("message deleted successfully");
+    expect(response.statusCode).toEqual(200);
+    response = await request(app).get(`/textChat/messagesID/${id}`)
+    expect(response.body.data.length).toEqual(0);
+    expect(response.statusCode).toEqual(200);
+  });
 
 
 });

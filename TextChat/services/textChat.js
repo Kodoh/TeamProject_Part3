@@ -47,6 +47,20 @@ async function getPrivateMessages(page = 1,req){
   }
 }
 
+async function getmessagesID(page = 1,req){
+  const offset = helper.getOffset(page, config.listPerPage);
+  const rows = await db.query(
+    `SELECT * FROM messages WHERE idMessages = ${req}`
+  );
+  const data = helper.emptyOrRows(rows);
+  const meta = {page};
+
+  return {
+    data,
+    meta
+  }
+}
+
 async function getAllPrivateMessages(page = 1){
   const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
@@ -206,7 +220,7 @@ async function createMessage(m){
   let message = 'Error in creating new message';
 
   if (result.affectedRows) {
-    message = 'message created successfully';
+    message = {"status" : 'message created successfully', "newId": result.insertId};
   }
 
   return {message};
@@ -385,6 +399,7 @@ module.exports = {
   getAll,
   getGroupMessages,
   getPrivateMessages,
+  getmessagesID,
   getAllGroupMessages,
   getAllPrivateMessages,
   getAllUsers,

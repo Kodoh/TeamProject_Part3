@@ -41,6 +41,17 @@ router.get('/privateMessages/:id', async function(req, res, next) {
   }
 });
 
+// returns all the messages (:id)
+
+router.get('/messagesID/:id', async function(req, res, next) {
+  try {
+    res.json(await textChat.getmessagesID(1,req.params.id));
+  } catch (err) {
+    console.error(`Error while getting messages `, err.message);
+    next(err);
+  }
+});
+
 // returns all group info `localhost:3000/textChat/groups`
 
 router.get('/groups', async function(req, res, next) {
