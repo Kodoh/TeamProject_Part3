@@ -17,14 +17,12 @@ USE `mydb` ;
 -- -----------------------------------------------------
 -- Table `mydb`.`group`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`group` (
-  `idGroup` INT NOT NULL AUTO_INCREMENT,
-  `Name` VARCHAR(45) NOT NULL,
-  `Private` TINYINT NOT NULL,
-  PRIMARY KEY (`idGroup`))
-ENGINE = InnoDB
-AUTO_INCREMENT = 10
-DEFAULT CHARACTER SET = utf8mb3;
+DROP TABLE IF EXISTS `group`;
+CREATE TABLE `group` (
+  idGroup int AUTO_INCREMENT PRIMARY KEY,
+  Name varchar(45) NOT NULL,
+  Private tinyint NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
 -- -----------------------------------------------------
