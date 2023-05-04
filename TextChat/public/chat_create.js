@@ -1,7 +1,7 @@
 document.getElementById('createChatForm').addEventListener('submit', async function (e) {
   e.preventDefault();
   const employees = document.getElementById('employees').selectedOptions;
-  const participantIds = Array.from(employees).map(e => e.value).join(', ');
+  const participantIds = Array.from(employees).map(e => e.value);
   const participantNames = Array.from(employees).map(e => e.textContent).join(', ');
 
   const chatData = {
@@ -28,6 +28,10 @@ document.getElementById('createChatForm').addEventListener('submit', async funct
       const responseData = await response.json();
       console.log(responseData.message);
 
+      // Get the ID of the newly created chat
+    const chatId = responseData.data ? responseData.data.id : undefined;
+    console.log('Chat ID:', chatId);
+
       // Refresh the chat list
       const userId = sessionStorage.getItem('userId');
       const chatGroups = await fetchChatGroups(userId);
@@ -41,8 +45,6 @@ document.getElementById('createChatForm').addEventListener('submit', async funct
     console.error('Error creating chat:', error);
   }
 });
-
-
 
 
 async function fetchChatGroups(userId) {
