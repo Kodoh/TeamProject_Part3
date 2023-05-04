@@ -217,7 +217,7 @@ router.post('/groups', async function(req, res, next) {
   }
 });
 
-// same as above
+// same as above but for a private group
 router.post('/private', async function(req, res, next) {
 
   const { error } = validateGroup(req.body);
@@ -385,7 +385,6 @@ function validateMembership(membership) {
 function validateGroup(group) {
   const schema = {
     Name: Joi.string()
-    .alphanum()
     .min(3)
     .max(30)
     .required(),

@@ -1,14 +1,17 @@
 document.getElementById('createChatForm').addEventListener('submit', async function (e) {
   e.preventDefault();
   const employees = document.getElementById('employees').selectedOptions;
-  const participants = Array.from(employees).map(e => e.value).join(', ');
+  const participantIds = Array.from(employees).map(e => e.value).join(', ');
+  const participantNames = Array.from(employees).map(e => e.textContent).join(', ');
 
   const chatData = {
-    Name: `Chat with ${participants}`,
+    Name: `Chat with ${participantNames}`,
   };
 
+  console.log('Chat name:', chatData.Name);
+
   // Call the appropriate API method based on the number of selected employees
-  const apiEndpoint = employees.length === 1 ? '/private' : '/groups';
+  const apiEndpoint = employees.length === 1 ? 'http://localhost:8383/textChat/private' : 'http://localhost:8383/textChat/groups';
   try {
     const response = await fetch(apiEndpoint, {
       method: 'POST',
@@ -18,24 +21,29 @@ document.getElementById('createChatForm').addEventListener('submit', async funct
       body: JSON.stringify(chatData)
     });
 
-    const responseData = await response.json();
-    console.log(responseData.message);
+    console.log('Response status:', response.status);
+    // console.log('Response text:', await response.text()); // Remove or comment out this line
 
-    // Refresh the chat list
-    const chatGroups = await fetchChatGroups(userId);
-    const privateMessages = await fetchPrivateMessages(userId);
+    if (response.status === 200) {
+      const responseData = await response.json();
+      console.log(responseData.message);
 
-    // Combine chat groups and private messages into a single array
-    const combinedChats = [
-      ...chatGroups.data.map((group) => ({ ...group, participants: group.participants, type: 'public' })),
-      ...privateMessages.data.map((privateMessage) => ({ ...privateMessage, participants: privateMessage.participants, type: 'private' })),
-    ];
-
-    displayChats(combinedChats);
+      // Refresh the chat list
+      const userId = sessionStorage.getItem('userId');
+      const chatGroups = await fetchChatGroups(userId);
+      const privateMessages = await fetchPrivateMessages(userId);
+      const combinedChats = await asyncMap(chatGroups, privateMessages);
+      displayChats(combinedChats);
+    } else {
+      console.error('Error creating chat:', response.statusText);
+    }
   } catch (error) {
     console.error('Error creating chat:', error);
   }
 });
+
+
+
 
 async function fetchChatGroups(userId) {
 
@@ -70,7 +78,15 @@ async function fetchGroupMembers(groupId) {
   }
 }
 
-
+async function fetchAllUsers() {
+  try {
+    const response = await fetch('http://localhost:8383/TextChat/users'); // Use the full URL here
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+  }
+}
 
 function displayChats(chats) {
   const publicChatList = document.getElementById('publicChatList');
@@ -110,7 +126,6 @@ async function asyncMap(chatGroups,privateMessages) {
 
 
 document.addEventListener('DOMContentLoaded', async () => {
-
   const userId = sessionStorage.getItem('userId'); // Get the user ID from sessionStorage
   console.log(userId)
   if (!userId) {
@@ -119,10 +134,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  // Fetch all users
+  const allUsers = await fetchAllUsers();
+  console.log('Fetched users:', allUsers); // Add this line
+
+  // Populate the 'employees' select element with user names
+  const employeesSelect = document.getElementById('employees');
+  allUsers.forEach((user) => {
+    const option = document.createElement('option');
+    option.value = user.idUser;
+    option.textContent = user.Name;
+    employeesSelect.appendChild(option);
+  });
+
   const chatGroups = await fetchChatGroups(userId);
+  console.log('Fetched chat groups:', chatGroups); // Add this line
   const privateMessages = await fetchPrivateMessages(userId);
-  const combinedChats = await asyncMap(chatGroups,privateMessages)
+  console.log('Fetched private messages:', privateMessages); // Add this line
+  const combinedChats = await asyncMap(chatGroups, privateMessages);
+
   // Combine chat groups and private messages into a single array
-  console.log(combinedChats)
+  console.log(combinedChats);
   displayChats(combinedChats);
 });
