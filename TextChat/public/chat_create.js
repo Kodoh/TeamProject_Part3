@@ -40,7 +40,7 @@ document.getElementById('createChatForm').addEventListener('submit', async funct
 async function fetchChatGroups(userId) {
 
   try {
-    const response = await fetch(`http://localhost:8383/textChat/membership/${userId}`);
+    const response = await fetch(`http://localhost:8383/textChat/groups/${userId}`);
     const data = await response.json();
     return data;
   } catch (error) {
@@ -50,7 +50,7 @@ async function fetchChatGroups(userId) {
 
 async function fetchPrivateMessages(userId) {
   try {
-    const response = await fetch(`http://localhost:8383/textChat/PrivateMessages/${userId}`);
+    const response = await fetch(`http://localhost:8383/textChat/private/${userId}`);
     const data = await response.json();
     return data;
   } catch (error) {
@@ -81,7 +81,6 @@ function displayChats(chats) {
   privateChatList.innerHTML = '';
 
   chats.forEach((chat) => {
-    console.log(chat.participants)
     const newChat = document.createElement('li');
     newChat.textContent = `Chat with`
     chat.participants.forEach((participant) => {
@@ -91,7 +90,7 @@ function displayChats(chats) {
       window.location.href = `chat_instance.html?chatId=${chat.id}`;
     });
 
-    if (chat.type === 'public') {
+    if (chat.Private == 0) {
       publicChatList.appendChild(newChat);
     } else {
       privateChatList.appendChild(newChat);
@@ -102,8 +101,8 @@ function displayChats(chats) {
 
 async function asyncMap(chatGroups,privateMessages) {
   const combinedChats = [
-    ...chatGroups.data.map(async (group) => ({ ...group, participants: await fetchGroupMembers(group.Group_idGroup), type: 'public' })),
-    ...privateMessages.data.map(async (privateMessage) => ({ ...privateMessage, participants: await fetchGroupMembers(privateMessage.Group_idGroup), type: 'private' })),
+    ...chatGroups.data.map(async (group) => ({ ...group, participants: await fetchGroupMembers(group.idGroup)})),
+    ...privateMessages.data.map(async (privateMessage) => ({ ...privateMessage, participants: await fetchGroupMembers(privateMessage.idGroup)})),
   ];
   const results = await Promise.all(combinedChats);
   return results;
@@ -122,7 +121,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const chatGroups = await fetchChatGroups(userId);
   const privateMessages = await fetchPrivateMessages(userId);
-  console.log(chatGroups)
   const combinedChats = await asyncMap(chatGroups,privateMessages)
   // Combine chat groups and private messages into a single array
   console.log(combinedChats)

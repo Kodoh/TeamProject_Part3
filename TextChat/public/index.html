@@ -69,7 +69,6 @@
   async function loginUser() {
     const userId = document.getElementById("userId").value;
     const baseUrl = `http://localhost:8383/textChat/users/${userId}`
-    console.log(baseUrl)
     try {
       const res = await fetch(baseUrl,
       {
