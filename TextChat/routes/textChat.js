@@ -64,7 +64,7 @@ router.get('/groups/users/:id', async function(req, res, next) {
   }
 });
 
-// returns all info associated with the group with :id
+// returns all info associated with group :id user is in
 
 router.get('/groups/:id', async function(req, res, next) {
   try {
@@ -87,7 +87,7 @@ router.get('/private', async function(req, res, next) {
 });
 
 
-// Returns info to do with private group associated with :id
+// Returns info to do with private group associated with user :id
 
 router.get('/private/:id', async function(req, res, next) {
   try {

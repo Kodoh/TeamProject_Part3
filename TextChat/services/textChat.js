@@ -175,6 +175,8 @@ async function getAllUsers(page = 1){
   }
 }
 
+
+
 async function getUser(page = 1,req){
   const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
