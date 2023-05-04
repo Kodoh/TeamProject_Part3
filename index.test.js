@@ -2,6 +2,8 @@ const request = require('supertest');
 
 const app = require('./index');
 
+//-----------GET-----------
+
 describe('GET', () => {
 
   it('testing /textChat/groupMessages/01', () => {
@@ -220,6 +222,7 @@ describe('GET', () => {
 
 });
 
+//-----------POST-----------
 
 describe("POST", () => {
   const newValidUser = {
@@ -258,9 +261,21 @@ describe("POST", () => {
     expect(response.statusCode).toEqual(200);
   })
 
+  const newMembership = {
+    "userId": 1, 
+    "groupId": 2
+  }
+
+  it("should create a new membership", async () => {
+    const response = await request(app).post("/textChat/membership").send(newMembership);
+    const message = response.body.message
+    expect(message).toEqual('membership created successfully')
+    expect(response.statusCode).toEqual(200);
+  })
+
 });
 
-
+//-----------DELETE-----------
 
 describe("DELETE", () => {
   it("Should delete user", async () => {
@@ -300,6 +315,19 @@ describe("DELETE", () => {
     expect(response.statusCode).toEqual(200);
   });
 
+  it("Should delete membership", async () => {
+    const newMembership = {
+      "userId": 1, 
+      "groupId": 2
+    }
+    let response = await request(app).delete(`/textChat/membership`).send(newMembership)
+    let message = response.body.message;
+    expect(message).toEqual("membership deleted successfully");
+    expect(response.statusCode).toEqual(200);
+    //response = await request(app).get(`/textChat/membership`).send(newMembership)
+    //expect(response.body.data.length).toEqual(0);
+    //expect(response.statusCode).toEqual(200);
+  });
 
 });
 

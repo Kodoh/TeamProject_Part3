@@ -18,6 +18,16 @@ router.get('/groupMessages/:id', async function(req, res, next) {
   }
 });
 
+// Returns membership :memberID with user :userID -> in the body
+
+router.get('/membership', async function(req, res, next) {
+  try {
+    res.json(await textChat.getSpecificMembership(1,req.body));
+  } catch (err) {
+    console.error(`Error while getting membership `, err.message);
+    next(err);
+  }
+});
 
 // Returns all the groups that user :id is in 
 

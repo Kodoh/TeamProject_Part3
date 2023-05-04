@@ -19,6 +19,20 @@ async function getAll(page = 1){
   }
 }
 
+async function getSpecificMembership(page = 1,memb){
+  const offset = helper.getOffset(page, config.listPerPage);
+  const rows = await db.query(
+    `SELECT * FROM membership WHERE group_idGroup = ${memb.groupID} AND user_idUser = ${memb.userID};`
+  );
+  const data = helper.emptyOrRows(rows);
+  const meta = {page};
+
+  return {
+    data,
+    meta
+  }
+}
+
 async function getGroupMessages(page = 1,req){
   const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
@@ -397,6 +411,7 @@ async function updateGroup(id, group){
 
 module.exports = {
   getAll,
+  getSpecificMembership,
   getGroupMessages,
   getPrivateMessages,
   getmessagesID,
