@@ -273,7 +273,7 @@ async function createGroup(group){
   let message = 'Error in creating new group';
 
   if (result.affectedRows) {
-    message = 'group created successfully';
+    message = {"status" : 'group created successfully', "newId": result.insertId};
   }
 
   return {message};
@@ -290,7 +290,7 @@ async function createPrivate(pm){
   let message = 'Error in creating new pm';
 
   if (result.affectedRows) {
-    message = 'pm created successfully';
+    message = {"status" : 'pm created successfully', "newId": result.insertId};
   }
 
   return {message};
