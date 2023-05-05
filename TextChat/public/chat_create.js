@@ -1,5 +1,6 @@
 document.getElementById('createChatForm').addEventListener('submit', async function (e) {
   e.preventDefault();
+  const loggedInUserId = parseInt(sessionStorage.getItem('userId'));
   const employees = document.getElementById('employees').selectedOptions;
   const participantIds = Array.from(employees).map(e => e.value);
   const participantNames = Array.from(employees).map(e => e.textContent).join(', ');
@@ -22,20 +23,22 @@ document.getElementById('createChatForm').addEventListener('submit', async funct
     });
 
     console.log('Response status:', response.status);
-    // console.log('Response text:', await response.text()); // Remove or comment out this line
 
+    // if response is successfull capture response data
     if (response.status === 200) {
       const responseData = await response.json();
-      console.log(responseData.message);
+      console.log(responseData);
 
-      // Get the ID of the newly created chat
-    const chatId = responseData.data ? responseData.data.id : undefined;
-    console.log('Chat ID:', chatId);
+      // Get the ID of the newly created chat to be passed to membership table
+      const chatId = responseData.message.newId;
+      console.log('Chat ID1:', chatId);
+
+      // Add each participant to the new group including the loggedInUserId
+      await createMembership(participantIds, chatId, loggedInUserId);
 
       // Refresh the chat list
-      const userId = sessionStorage.getItem('userId');
-      const chatGroups = await fetchChatGroups(userId);
-      const privateMessages = await fetchPrivateMessages(userId);
+      const chatGroups = await fetchChatGroups(loggedInUserId);
+      const privateMessages = await fetchPrivateMessages(loggedInUserId);
       const combinedChats = await asyncMap(chatGroups, privateMessages);
       displayChats(combinedChats);
     } else {
@@ -45,6 +48,29 @@ document.getElementById('createChatForm').addEventListener('submit', async funct
     console.error('Error creating chat:', error);
   }
 });
+
+async function createMembership(userId, groupId, loggedInUserId) {
+  // Add the loggedInUserId to the membership
+  const userIds = [loggedInUserId, ...userId];
+
+  try {
+    await Promise.all(userIds.map(async (id) => {
+      const response = await fetch('http://localhost:8383/textChat/membership', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId: parseInt(id), groupId: parseInt(groupId) })
+      });
+
+      if (!response.ok) {
+        console.error('Error while creating membership:', await response.text());
+      }
+    }));
+  } catch (error) {
+    console.error('Error while creating membership:', error);
+  }
+}
 
 
 async function fetchChatGroups(userId) {
@@ -116,6 +142,16 @@ function displayChats(chats) {
   });
 }
 
+function filterLoggedInUser(loggedInUserId) {
+  const employeesSelect = document.getElementById('employees');
+  const options = Array.from(employeesSelect.options);
+
+  options.forEach(option => {
+    if (parseInt(option.value) === loggedInUserId) {
+      employeesSelect.removeChild(option);
+    }
+  });
+}
 
 async function asyncMap(chatGroups,privateMessages) {
   const combinedChats = [
@@ -128,9 +164,9 @@ async function asyncMap(chatGroups,privateMessages) {
 
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const userId = sessionStorage.getItem('userId'); // Get the user ID from sessionStorage
-  console.log(userId)
-  if (!userId) {
+  const loggedInUserId = parseInt(sessionStorage.getItem('userId'));
+  console.log(loggedInUserId)
+  if (!loggedInUserId) {
     // Redirect to login page if the user ID is not available
     window.location.href = "/loginPage.html";
     return;
@@ -138,7 +174,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Fetch all users
   const allUsers = await fetchAllUsers();
-  console.log('Fetched users:', allUsers); // Add this line
+  console.log('Fetched users:', allUsers);
 
   // Populate the 'employees' select element with user names
   const employeesSelect = document.getElementById('employees');
@@ -149,10 +185,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     employeesSelect.appendChild(option);
   });
 
-  const chatGroups = await fetchChatGroups(userId);
-  console.log('Fetched chat groups:', chatGroups); // Add this line
-  const privateMessages = await fetchPrivateMessages(userId);
-  console.log('Fetched private messages:', privateMessages); // Add this line
+  // Pass loggedInUserId as an argument to the filterLoggedInUser() function
+  filterLoggedInUser(loggedInUserId);
+
+  // Replace 'userId' with 'loggedInUserId'
+  const chatGroups = await fetchChatGroups(loggedInUserId);
+  console.log('Fetched chat groups:', chatGroups);
+  const privateMessages = await fetchPrivateMessages(loggedInUserId);
+  console.log('Fetched private messages:', privateMessages);
   const combinedChats = await asyncMap(chatGroups, privateMessages);
 
   // Combine chat groups and private messages into a single array
