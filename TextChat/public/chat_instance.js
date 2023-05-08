@@ -1,11 +1,61 @@
 const loggedInUserId = parseInt(sessionStorage.getItem('userId'));
 let lastSender = '';
 
+async function updateGroupName(groupId, newName, isPrivate) {
+  try {
+    await fetch(`http://localhost:8383/textChat/groups/${groupId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        idGroup: groupId,
+        Name: newName,
+        Private: isPrivate ? 1 : 0,
+      }),
+    });
+    return true;
+  } catch (error) {
+    console.error('Error while updating group name:', error);
+    return false;
+  }
+}
+
 async function fetchMessages(groupId) {
   const response = await fetch(`http://localhost:8383/textChat/groups/message/${groupId}`);
   const messages = await response.json();
   return messages.data;
 }
+
+async function fetchAllGroups() {
+  const response = await fetch('http://localhost:8383/textChat/groups');
+  const groups = await response.json();
+  return groups.data;
+}
+
+async function getGroupPrivacySetting() {
+  const allGroups = await fetchAllGroups();
+  const currentGroupId = getGroupIdFromUrl();
+  const currentGroup = allGroups.find(group => group.idGroup == currentGroupId);
+
+  if (currentGroup) {
+    const isPrivate = currentGroup.Private;
+
+    // Return the privacy setting of the current group
+    return isPrivate;
+  } else {
+    throw new Error('Group not found');
+  }
+}
+
+(async () => {
+  try {
+    const privacySetting = await getGroupPrivacySetting();
+    console.log('Privacy setting:', privacySetting);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+})();
 
 function getGroupIdFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -108,12 +158,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const chatNameInput = document.getElementById('chatName');
     const chatTitle = document.querySelector('header h1');
   
-    updateChatNameButton.addEventListener('click', () => {
+    updateChatNameButton.addEventListener('click', async () => {
       const newChatName = chatNameInput.value.trim();
       if (newChatName) {
-        chatTitle.textContent = newChatName;
+        const groupId = getGroupIdFromUrl();
+        const isPrivate = await getGroupPrivacySetting(); // Get the privacy setting of the group
+        const result = await updateGroupName(groupId, newChatName, isPrivate);
+        if (result) {
+          chatTitle.textContent = newChatName;
+        } else {
+          console.error('Failed to update the group name');
+        }
       }
-    });
+    });    
   });
 
   document.getElementById('closeSettings').addEventListener('click', function () {
