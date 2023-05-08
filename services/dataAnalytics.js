@@ -112,9 +112,9 @@ async function teamEmployees(req){
 async function addEmployee(req){
     const result = await database.query(
         `INSERT INTO \`employee\`
-        (employee_id, employee_name, isManager)
+        (employee_id, employee_name, email, joindate, role)
         VALUES
-        ('${req.id}', '${req.name}', '${req.manager}' )`
+        ('${req.id}', '${req.name}', '${req.email}', '${req.joindate}', '${req.role}' )`
     );
 
     let message = 'Error adding employee';
@@ -147,9 +147,9 @@ async function addTeam(req){
 async function addTask(req){
     const result = await database.query(
         `INSERT INTO task
-        (task_id, project_id, task_name, manhours, task_status, start_date, end_date)
+        (task_id, project_id, task_name, hoursCompleted, totalManhours, task_status, start_date, end_date)
         VALUES
-        ('${req.id}', '${req.project_id}', '${req.name}', '${req.hours}', '${req.status}', '${req.start}', '${req.end}' )`
+        ('${req.id}', '${req.project_id}', '${req.name}', '${req.hoursCompleted}', '${req.totalHours}', '${req.status}', '${req.start}', '${req.end}' )`
     );
 
     let message = 'Error adding task';

@@ -23,7 +23,9 @@ USE `mydb` ;
 CREATE TABLE IF NOT EXISTS `mydb`.`Employee` (
   `employee_id` INT NOT NULL,
   `employee_name` VARCHAR(45) NULL,
-  `is_manager` TINYINT NULL,
+  `email` VARCHAR(50) NULL,
+  `joindate` DATE NULL,
+  `role` VARCHAR(45) NULL,
   PRIMARY KEY (`employee_id`))
 ENGINE = InnoDB;
 
@@ -48,7 +50,8 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Task` (
   `task_id` INT NOT NULL,
   `project_id` INT NOT NULL,
   `task_name` CHAR(50) NOT NULL,
-  `manhours` INT NULL,
+  `hoursCompleted` INT NULL,
+  `totalManhours` INT NULL,
   `task_status` CHAR(20) NULL,
   `start_date` DATE NULL,
   `end_date` DATE NULL,
