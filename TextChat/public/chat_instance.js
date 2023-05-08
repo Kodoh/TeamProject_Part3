@@ -1,68 +1,126 @@
-function getRandomUser() {  // function for my own front-end testing purposes only to mimic multiple different people chatting
-  const users = ['John Boggins', 'Alice Simmons', 'Bob Builder'];
-  return users[Math.floor(Math.random() * users.length)];
-}
-
+const loggedInUserId = parseInt(sessionStorage.getItem('userId'));
 let lastSender = '';
 
-    document.getElementById('sendMessageForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const messageText = document.getElementById('messageText').value;
-    const username = getRandomUser(); // will need to modify to get actual usernames
+async function fetchMessages(groupId) {
+  const response = await fetch(`http://localhost:8383/textChat/groups/message/${groupId}`);
+  const messages = await response.json();
+  return messages.data;
+}
 
-    if (messageText.trim() !== '') { // checks to ensure message is not an empty string
-        const chatMessages = document.getElementById('chatMessages');
-        const newMessageWrapper = document.createElement('div'); // creates a new message on the screen
-        newMessageWrapper.className = 'message-wrapper';
+function getGroupIdFromUrl() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('chatId');
+}
 
-        if (lastSender !== username) { // if same user sends multiple messages page adds message under previous without re-adding their name. This messagw will add the name of the user adding a message
-        const usernameElement = document.createElement('div');
-        usernameElement.className = username === 'John Boggins' ? 'username user-username' : 'username';
-        usernameElement.textContent = username;
+async function fetchUserById(userId) {
+  const response = await fetch(`http://localhost:8383/textChat/users/${userId}`);
+  const userResponse = await response.json();
+  const user = userResponse.data[0]; // The name associated with the user ID
+  return user;
+}
 
-        newMessageWrapper.appendChild(usernameElement); 
-        }
+async function renderMessages(messages) {
+  const chatMessages = document.getElementById('chatMessages');
+  for (const message of messages) {
+    const user = await fetchUserById(message.Sender);
+    const username = user.Name;
+    const isCurrentUser = message.Sender == loggedInUserId;
 
-        const newMessage = document.createElement('div');
-        newMessage.className = username === 'John Boggins' ? 'message user-message' : 'message';
-        newMessage.textContent = messageText;
+    const newMessageWrapper = document.createElement('div');
+    newMessageWrapper.className = 'message-wrapper';
 
-        newMessageWrapper.appendChild(newMessage);
-        chatMessages.appendChild(newMessageWrapper);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        document.getElementById('messageText').value = '';
+    if (lastSender !== username) {
+      const usernameElement = document.createElement('div');
+      usernameElement.className = isCurrentUser ? 'username user-username' : 'username';
+      usernameElement.textContent = username;
 
-        lastSender = username;
+      newMessageWrapper.appendChild(usernameElement);
     }
+
+    const newMessage = document.createElement('div');
+    newMessage.className = isCurrentUser ? 'message user-message' : 'message';
+    newMessage.textContent = message.Contents;
+
+    newMessageWrapper.appendChild(newMessage);
+    chatMessages.appendChild(newMessageWrapper);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    lastSender = username;
+  }
+}
+
+document.getElementById('sendMessageForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const messageText = document.getElementById('messageText').value;
+  const user = await fetchUserById(loggedInUserId);
+  const username = user.Name;
+
+  if (messageText.trim() !== '') {
+    const chatMessages = document.getElementById('chatMessages');
+    const newMessageWrapper = document.createElement('div');
+    newMessageWrapper.className = 'message-wrapper';
+  
+    if (lastSender !== username) {
+      const usernameElement = document.createElement('div');
+      usernameElement.className = loggedInUserId === user.idUser ? 'username user-username' : 'username';
+      usernameElement.textContent = username;
+  
+      newMessageWrapper.appendChild(usernameElement);
+    }
+  
+    const newMessage = document.createElement('div');
+    newMessage.className = loggedInUserId === user.idUser ? 'message user-message' : 'message';
+    newMessage.textContent = messageText;
+  
+    newMessageWrapper.appendChild(newMessage);
+    chatMessages.appendChild(newMessageWrapper);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    document.getElementById('messageText').value = '';
+  
+    lastSender = username;
+
+    const groupId = getGroupIdFromUrl();
+    const messageData = {
+      Contents: messageText,
+      Group_idGroup: groupId,
+      Sender: loggedInUserId,
+    };
+
+    await fetch('http://localhost:8383/textChat/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(messageData),
     });
-    // event listeners for opening and closing settings button
-    document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('sendMessageForm').addEventListener('submit', function (e) {
-        });
-      
-        document.getElementById('settingsButton').addEventListener('click', function () { 
-          document.querySelector('.settings-overlay').classList.remove('hidden');
-          const updateChatNameButton = document.getElementById('updateChatName');
-          const chatNameInput = document.getElementById('chatName');
-          const chatTitle = document.querySelector('header h1');
-        
-          updateChatNameButton.addEventListener('click', () => {
-            const newChatName = chatNameInput.value.trim();
-            if (newChatName) {
-              chatTitle.textContent = newChatName;
-            }
-          });
-        });
-      
-        document.getElementById('closeSettings').addEventListener('click', function () {
-          document.querySelector('.settings-overlay').classList.add('hidden');
-        });
+  }
+});
 
-        document.getElementById('backButton').addEventListener('click', function () {
-            window.location.href = 'Chat_creation.html';
-        });    
-      });
+// event listeners for opening and closing settings button
+document.addEventListener('DOMContentLoaded', async () => {
+  const currentGroupId = getGroupIdFromUrl();
+  const messages = await fetchMessages(currentGroupId);
+  renderMessages(messages);
 
-      
+  document.getElementById('settingsButton').addEventListener('click', function () { 
+    document.querySelector('.settings-overlay').classList.remove('hidden');
+    const updateChatNameButton = document.getElementById('updateChatName');
+    const chatNameInput = document.getElementById('chatName');
+    const chatTitle = document.querySelector('header h1');
+  
+    updateChatNameButton.addEventListener('click', () => {
+      const newChatName = chatNameInput.value.trim();
+      if (newChatName) {
+        chatTitle.textContent = newChatName;
+      }
+    });
+  });
 
-      
+  document.getElementById('closeSettings').addEventListener('click', function () {
+    document.querySelector('.settings-overlay').classList.add('hidden');
+  });
+
+  document.getElementById('backButton').addEventListener('click', function () {
+    window.location.href = 'Chat_creation.html';
+  });
+});

@@ -131,7 +131,7 @@ function displayChats(chats) {
       newChat.textContent += ` ${participant.Name}`;
     });
     newChat.addEventListener('click', function () {
-      window.location.href = `chat_instance.html?chatId=${chat.id}`;
+      window.location.href = `chat_instance.html?chatId=${chat.idGroup}`;
     });
 
     if (chat.Private == 0) {
