@@ -19,6 +19,31 @@ async function updateGroupName(groupId, newName, isPrivate) {
   }
 }
 
+async function leaveGroup(userId, groupId) {
+  try {
+    const response = await fetch(`http://localhost:8383/textChat/membership`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: userId,
+        groupId: groupId
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error while leaving the group:', error);
+  }
+}
+
+
 async function fetchMessages(groupId) {
   const response = await fetch(`http://localhost:8383/textChat/groups/message/${groupId}`);
   const messages = await response.json();
@@ -169,6 +194,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
     });    
+  });
+
+  document.getElementById('leaveChat').addEventListener('click', async function () {
+    const currentGroupId = getGroupIdFromUrl();
+    await leaveGroup(loggedInUserId, currentGroupId);
+    // Redirect the user to the chat creation page
+    window.location.href = 'Chat_creation.html';
   });
 
   document.getElementById('closeSettings').addEventListener('click', function () {
