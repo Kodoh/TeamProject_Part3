@@ -9,9 +9,7 @@ async function updateGroupName(groupId, newName, isPrivate) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        idGroup: groupId,
         Name: newName,
-        Private: isPrivate ? 1 : 0,
       }),
     });
     return true;
@@ -163,7 +161,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (newChatName) {
         const groupId = getGroupIdFromUrl();
         const isPrivate = await getGroupPrivacySetting(); // Get the privacy setting of the group
-        const result = await updateGroupName(groupId, newChatName, isPrivate);
+        const result = await updateGroupName(groupId, newChatName);
         if (result) {
           chatTitle.textContent = newChatName;
         } else {
