@@ -3,7 +3,11 @@ let lastSender = '';
 
 async function updateGroupName(groupId, newName, isPrivate) {
   try {
-    await fetch(`http://localhost:8383/textChat/groups/${groupId}`, {
+    let url = isPrivate 
+      ? `http://localhost:8383/textChat/private/${groupId}`
+      : `http://localhost:8383/textChat/groups/${groupId}`;
+
+    await fetch(url, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -50,16 +54,29 @@ async function fetchMessages(groupId) {
   return messages.data;
 }
 
+async function fetchGroup(groupId) {
+  const response = await fetch(`http://localhost:8383/textChat/groups/${groupId}`);
+  const group = await response.json();
+  return group.data;
+}
+
 async function fetchAllGroups() {
   const response = await fetch('http://localhost:8383/textChat/groups');
   const groups = await response.json();
   return groups.data;
 }
 
+async function fetchPrivateGroups() {
+  const response = await fetch('http://localhost:8383/textChat/private');
+  const privateGroups = await response.json();
+  return privateGroups.data;
+}
+
 async function getGroupPrivacySetting() {
   const allGroups = await fetchAllGroups();
+  const allPrivateGroups = await fetchPrivateGroups(); // Fetch all private groups
   const currentGroupId = getGroupIdFromUrl();
-  const currentGroup = allGroups.find(group => group.idGroup == currentGroupId);
+  let currentGroup = allGroups.find(group => group.idGroup == currentGroupId);
 
   if (currentGroup) {
     const isPrivate = currentGroup.Private;
@@ -67,9 +84,18 @@ async function getGroupPrivacySetting() {
     // Return the privacy setting of the current group
     return isPrivate;
   } else {
-    throw new Error('Group not found');
+    // If the group was not found among the non-private groups, check the private groups
+    currentGroup = allPrivateGroups.find(group => group.idGroup == currentGroupId);
+    
+    if (currentGroup) {
+      // Return true since this is a private group
+      return true;
+    } else {
+      throw new Error('Group not found');
+    }
   }
 }
+
 
 (async () => {
   try {
@@ -172,8 +198,27 @@ document.getElementById('sendMessageForm').addEventListener('submit', async func
 // event listeners for opening and closing settings button
 document.addEventListener('DOMContentLoaded', async () => {
   const currentGroupId = getGroupIdFromUrl();
-  const messages = await fetchMessages(currentGroupId);
-  renderMessages(messages);
+  console.log(`Current group ID: ${currentGroupId}`);
+
+  // Fetch all groups and find the current group
+  const isPrivate = await getGroupPrivacySetting();
+  const allGroups = isPrivate ? await fetchPrivateGroups() : await fetchAllGroups();
+  console.log('All groups:', allGroups);
+  
+  const currentGroup = allGroups.find(group => group.idGroup == currentGroupId);
+
+  if (currentGroup) {
+    // If the current group exists, set the chat name
+    const chatName = currentGroup.Name;
+    const chatTitle = document.querySelector('header h1');
+    chatTitle.textContent = chatName;
+
+    // Fetch and render messages for this group
+    const messages = await fetchMessages(currentGroupId);
+    await renderMessages(messages);
+  } else {
+    console.error(`Error: Could not find group with ID ${currentGroupId}`);
+  }
 
   document.getElementById('settingsButton').addEventListener('click', function () { 
     document.querySelector('.settings-overlay').classList.remove('hidden');

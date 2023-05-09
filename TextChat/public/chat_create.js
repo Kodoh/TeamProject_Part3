@@ -126,10 +126,7 @@ function displayChats(chats) {
 
   chats.forEach((chat) => {
     const newChat = document.createElement('li');
-    newChat.textContent = `Chat with`
-    chat.participants.forEach((participant) => {
-      newChat.textContent += ` ${participant.Name}`;
-    });
+    newChat.textContent = chat.Name;
     newChat.addEventListener('click', function () {
       window.location.href = `chat_instance.html?chatId=${chat.idGroup}`;
     });
@@ -155,8 +152,14 @@ function filterLoggedInUser(loggedInUserId) {
 
 async function asyncMap(chatGroups,privateMessages) {
   const combinedChats = [
-    ...chatGroups.data.map(async (group) => ({ ...group, participants: await fetchGroupMembers(group.idGroup)})),
-    ...privateMessages.data.map(async (privateMessage) => ({ ...privateMessage, participants: await fetchGroupMembers(privateMessage.idGroup)})),
+    ...chatGroups.data.map(async (group) => {
+      const participants = await fetchGroupMembers(group.idGroup);
+      return { ...group, participants };
+    }),
+    ...privateMessages.data.map(async (privateMessage) => {
+      const participants = await fetchGroupMembers(privateMessage.idGroup);
+      return { ...privateMessage, participants };
+    }),
   ];
   const results = await Promise.all(combinedChats);
   return results;
