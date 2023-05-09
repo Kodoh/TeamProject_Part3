@@ -174,6 +174,20 @@ async function getPrivate(page = 1,req){
   }
 }
 
+async function getChat(page = 1,req){
+  const offset = helper.getOffset(page, config.listPerPage);
+  const rows = await db.query(
+    `SELECT * FROM \`group\` WHERE idGroup = ${req}`
+  );
+  const data = helper.emptyOrRows(rows);
+  const meta = {page};
+
+  return {
+    data,
+    meta
+  }
+}
+
 async function getAllUsers(page = 1){
   const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
@@ -268,7 +282,7 @@ async function createGroup(group){
   let message = 'Error in creating new group';
 
   if (result.affectedRows) {
-    message = 'group created successfully';
+    message = {"status" : 'group created successfully', "newId": result.insertId};
   }
 
   return {message};
@@ -285,7 +299,7 @@ async function createPrivate(pm){
   let message = 'Error in creating new pm';
 
   if (result.affectedRows) {
-    message = 'pm created successfully';
+    message = {"status" : 'pm created successfully', "newId": result.insertId};
   }
 
   return {message};
@@ -393,7 +407,7 @@ async function updateUser(id, user){
 async function updateGroup(id, group){
   const result = await db.query(
     `UPDATE \`group\` 
-    SET Contents="${group.name}"
+    SET Name="${group.name}"
     WHERE idGroup=${id}` 
   );
 
@@ -434,5 +448,7 @@ module.exports = {
   updateUser,
   updateGroup,
   getGroups,
+  getPrivate,
+  getChat,
   createPrivate
 }

@@ -95,14 +95,24 @@ router.get('/private', async function(req, res, next) {
   }
 });
 
-
 // Returns info to do with private group associated with :id
 
 router.get('/private/:id', async function(req, res, next) {
   try {
-    res.json(await textChat.getAllPrivate());
+    res.json(await textChat.getPrivate(1,req.params.id));
   } catch (err) {
     console.error(`Error while getting private messages `, err.message);
+    next(err);
+  }
+});
+
+// Returns info to do with chats with id - :id
+
+router.get('/chat/:id', async function(req, res, next) {
+  try {
+    res.json(await textChat.getChat(1,req.params.id));
+  } catch (err) {
+    console.error(`Error while getting chat`, err.message);
     next(err);
   }
 });
