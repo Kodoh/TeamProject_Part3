@@ -232,8 +232,10 @@ describe("POST", () => {
   it("should add a new user", async () => {
     const response = await request(app).post("/textChat/users").send(newValidUser);
     const message = response.body.message["status"]
+    const id = response.body.message["newId"]
     expect(message).toEqual('user created successfully')
     expect(response.statusCode).toEqual(200);
+    await request(app).delete(`/textChat/users/${id}`)
   });
   
   const newInvalidUser = {
@@ -255,8 +257,10 @@ describe("POST", () => {
   it("should add a new message", async () => {
     const response = await request(app).post("/textChat/messages").send(newValidMessage);
     const message = response.body.message["status"]
+    const id = response.body.message["newId"]
     expect(message).toEqual('message created successfully')
     expect(response.statusCode).toEqual(200);
+    await request(app).delete(`/textChat/messages/${id}`)
   })
 
   const newMembership = {
@@ -265,7 +269,8 @@ describe("POST", () => {
   }
   it("should create a new membership", async () => {
     const response = await request(app).post("/textChat/membership").send(newMembership);
-    const message = response.body.message
+    const message = response.body.message["status"]
+    const id = response.body.message["newId"]
     expect(message).toEqual('membership created successfully')
     expect(response.statusCode).toEqual(200);
   })
@@ -276,8 +281,10 @@ describe("POST", () => {
   it("should create a new group", async () => {
     const response = await request(app).post("/textChat/groups").send(newGroup);
     const message = response.body.message["status"]
+    const id = response.body.message["newId"]
     expect(message).toEqual('group created successfully')
     expect(response.statusCode).toEqual(200);
+    await request(app).delete(`/textChat/groups/${id}`)
   })
 
   const newPrivate = {
@@ -286,8 +293,10 @@ describe("POST", () => {
   it("should create a new private group", async () => {
     const response = await request(app).post("/textChat/private").send(newPrivate);
     const message = response.body.message["status"]
+    const id = response.body.message["newId"]
     expect(message).toEqual('pm created successfully')
     expect(response.statusCode).toEqual(200);
+    await request(app).delete(`/textChat/groups/${id}`)
   })
 
 });
@@ -402,6 +411,7 @@ describe("PUT", () => {
     message = response.body.message
     expect(message).toEqual('User updated successfully')
     expect(response.statusCode).toEqual(200);
+    await request(app).delete(`/textChat/users/${id}`)
   });
 
   it("Should update group", async () => {
@@ -419,6 +429,7 @@ describe("PUT", () => {
     message = response.body.message
     expect(message).toEqual('Group updated successfully')
     expect(response.statusCode).toEqual(200);
+    await request(app).delete(`/textChat/groups/${id}`)
   });
 
   it("Should update message", async () => {
@@ -440,6 +451,7 @@ describe("PUT", () => {
     message = response.body.message
     expect(message).toEqual('message updated successfully')
     expect(response.statusCode).toEqual(200);
+    await request(app).delete(`/textChat/messages/${id}`)
   });
   
 

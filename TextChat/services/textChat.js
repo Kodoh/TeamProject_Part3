@@ -265,7 +265,7 @@ async function createMembership(m){
   let message = 'Error in creating new membership';
 
   if (result.affectedRows) {
-    message = 'membership created successfully';
+    message = {"status" : 'membership created successfully', "newId": result.insertId};
   }
 
   return {message};
