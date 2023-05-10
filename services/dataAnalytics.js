@@ -161,6 +161,98 @@ async function addTask(req){
     return {message};
 }
 
+async function taskCompletion(req){
+    const result = await database.query(
+        `SELECT hoursCompleted/totalManhours AS percentage FROM task WHERE task_id = ${req}`
+    );
+
+    const data = formatEmpty(result);
+    return{
+        data
+    }
+}
+
+async function projectCompletion(req){
+    const result = await database.query(
+        `SELECT sum(hoursCompleted)/sum(totalManhours) AS percentage FROM task WHERE project_id = ${req}`
+    );
+    const data = formatEmpty(result);
+    return{
+        data
+    }
+}
+
+async function employeeCompletion(req){
+    const result = await database.query(
+        `SELECT sum(task.hoursCompleted)/sum(task.totalManhours) AS percentage FROM task INNER JOIN task_employee ON task_employee.task_id = task.task_id WHERE task_employee.employee_id = ${req}`
+    );
+    const data = formatEmpty(result);
+    return{
+        data
+    }
+}
+
+
+async function teamCompletion(req){
+    const result = await database.query(
+        `SELECT sum(task.hoursCompleted)/sum(task.totalManhours) AS percentage FROM task  INNER JOIN task_team ON task_team.task_id = task.task_id WHERE task_team.team_id = ${req}`
+    );
+    const data = formatEmpty(result);
+    return{
+        data
+    }
+}
+
+
+async function updateCompletedHours(id, body){
+    const result = await database.query(
+        `UPDATE task SET hoursCompleted = ${body.hours} WHERE task_id = ${id}`
+    );
+
+    let message = `Error updating hours completed`;
+
+    if(result.affectedRows){
+        message = `Hours completed successfully added`;
+
+    }
+    return{message}
+}
+
+async function updateTotalHours(id,body){
+    const result = await database.query(
+        `UPDATE task SET totalManhours = ${body.hours} WHERE task_id = ${id}`
+    );
+    let message = `Error updating total hours`;
+    if(result.affectedRows){
+        message = `Total hours successfully updated`;
+    }
+    return{message}
+}
+
+async function updateDueDate(id,body){
+    const result = await database.query(
+        `UPDATE task SET end_date = ${body.date} WHERE task_id = ${id}`
+    );
+    let message = `Error updating task due date`;
+    if(result.affectedRows){
+        message = `Due date successfully updated`;
+    }
+    return{message}
+}
+
+async function daysRemaining(req){
+
+    const result = await database.query(
+        `SELECT DATEDIFF(end_date,CURDATE()) FROM task WHERE task_id = ${req}`
+    );
+  
+    
+    const data = formatEmpty(result);
+    return{
+        data
+    }
+}
+
 module.exports ={
     tasks,
     task,
@@ -173,5 +265,13 @@ module.exports ={
     employeeTasks,
     addEmployee,
     addTask,
-    addTeam
+    addTeam,
+    taskCompletion,
+    projectCompletion,
+    employeeCompletion,
+    teamCompletion,
+    updateCompletedHours,
+    updateTotalHours,
+    updateDueDate,
+    daysRemaining
 }

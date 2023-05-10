@@ -125,6 +125,84 @@ router.post('/dataAnalytics/addTask', async function(req, res, next){
     }
 });
 
+router.get('/dataAnalytics/taskCompletion/:id', async function(req, res, next){
+    try{
+        res.json(await dataAnalytics.taskCompletion(req.params.id));
+    } catch (err){
+        console.error(err.message);
+        next(err);
+    }
+});
+
+
+router.get('/dataAnalytics/projectCompletion/:id', async function(req,res,next){
+    try{
+        res.json(await dataAnalytics.projectCompletion(req.params.id));
+
+    } catch(err){
+        console.error(err.message);
+        next(err);
+    }
+});
+
+router.get('/dataAnalytics/employeeCompletion/:id', async function(req,res,next){
+    try{
+        res.json(await dataAnalytics.employeeCompletion(req.params.id));
+    } catch(err){
+        console.error(err.message);
+        next(err);
+    }
+});
+
+router.get('/dataAnalytics/teamCompletion/:id', async function(req,res,next){
+    try{
+        res.json(await dataAnalytics.teamCompletion(req.params.id));
+
+    } catch(err){
+        console.error(err.message);
+        next(err);
+    }
+});
+
+router.put('/dataAnalytics/updateCompletedHours/:id', async function(req,res,next){
+    try{
+        res.json(await dataAnalytics.updateCompletedHours(req.params.id,req.body));
+
+    } catch(err){
+        console.error(`Error while updating task`, err.message);
+        next(err);
+    }
+});
+
+router.put('/dataAnalytics/updateTotalHours/:id', async function(req,res,next){
+    try{
+        res.json(await dataAnalytics.updateTotalHours(req.params.id,req.body));
+
+    } catch(err){
+        console.error(`Error while updating task`, err.message);
+        next(err);
+    }
+});
+
+router.put('/dataAnalytics/updateDueDate/:id', async function(req,res,next){
+    try{
+        res.json(await dataAnalytics.updateDueDate(req.params.id, req.body));
+
+    }catch(err){
+        console.error(`Error updating task date`, err.message);
+        next(err);
+    }
+});
+
+router.get('/dataAnalytics/daysRemaining/:id', async function(req,res,next){
+    try{
+        res.json(await dataAnalytics.daysRemaining(req.params.id));
+    }catch(err){
+        console.error(`Error getting time remaining`, err.message);
+        next(err);
+    }
+});
+
 
 
 
