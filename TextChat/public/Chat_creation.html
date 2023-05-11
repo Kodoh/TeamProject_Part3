@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat System</title>
+  <link rel="stylesheet" href="chat_creation_styles.css">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</head>
+<body>
+  <header>
+    <div class="content">
+      <h1>Create a new chat</h1>
+    </div>
+  </header>
+  <section class="create-chat">
+    <div class="content">
+      <form id="createChatForm">
+        <label for="employees">Select employees:</label>
+        <div class="form-content">
+          <select id="employees" class="select2" multiple>
+            <!-- Add your employee options here -->
+          </select>
+        </div>
+        <button type="submit">Create Chat</button>
+      </form>
+    </div>
+  </section>
+  <section class="chat-list">
+    <div class="content">
+      <h2>Existing chats:</h2>
+      <div class="public-private-chats">
+        <div class="public-chats">
+          <h3>Public Chats</h3>
+          <ul id="publicChatList">
+            <!-- Existing public chats will be appended here -->
+          </ul>
+        </div>
+        <div class="private-chats">
+          <h3>Private Chats</h3>
+          <ul id="privateChatList">
+            <!-- Existing private chats will be appended here -->
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script>
+    async function loginUser() {
+      const userId = document.getElementById("userId").value;
+      const baseUrl = `http://localhost:8383/textChat/users/${userId}`
+      console.log(baseUrl)
+      try {
+        const res = await fetch(baseUrl,
+        {
+          method: 'GET'
+        })
+        const data = await res.json()
+        if (data.data[0]) {
+          sessionStorage.setItem('userId', userId); // Store the user ID in sessionStorage
+          window.location.href = "http://localhost:8383/chat_creation.html";
+        } else {
+          alert("Invalid User ID");
+        }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred. Please try again.");
+    }
+    }
+    </script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+  <script src="chat_create.js"></script>
+</body>
+</html>

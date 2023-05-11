@@ -22,7 +22,7 @@ async function getAll(page = 1){
 async function getGroupMessages(page = 1,req){
   const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
-    `SELECT * FROM messages WHERE Group_idGroup IN (SELECT idGroup FROM \`group\` WHERE Private = 1 AND idGroup IN (SELECT Group_idGroup FROM membership WHERE User_idUser = ${req}))`
+    `SELECT * FROM messages WHERE Group_idGroup IN (SELECT idGroup FROM \`group\` WHERE Private = 0 AND idGroup IN (SELECT Group_idGroup FROM membership WHERE User_idUser = ${req}))`
   );
   const data = helper.emptyOrRows(rows);
   const meta = {page};
@@ -118,6 +118,21 @@ async function getGroups(page = 1,req){
   }
 }
 
+async function getGroupMembership(page = 1,req){
+  const offset = helper.getOffset(page, config.listPerPage);
+  const rows = await db.query(
+    `SELECT * FROM user WHERE idUser IN (SELECT User_idUser FROM membership WHERE Group_idGroup = ${req})`
+  );
+  const data = helper.emptyOrRows(rows);
+  const meta = {page};
+
+  return {
+    data,
+    meta
+  }
+}
+
+
 async function getAllPrivate(page = 1){
   const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
@@ -146,6 +161,22 @@ async function getPrivate(page = 1,req){
   }
 }
 
+
+async function getMessagesForGroup(page = 1,req){
+  const offset = helper.getOffset(page, config.listPerPage);
+  const rows = await db.query(
+    `SELECT * FROM messages WHERE Group_idGroup = ${req}`
+  );
+  const data = helper.emptyOrRows(rows);
+  const meta = {page};
+
+  return {
+    data,
+    meta
+  }
+}
+
+
 async function getAllUsers(page = 1){
   const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
@@ -159,6 +190,8 @@ async function getAllUsers(page = 1){
     meta
   }
 }
+
+
 
 async function getUser(page = 1,req){
   const offset = helper.getOffset(page, config.listPerPage);
@@ -240,7 +273,7 @@ async function createGroup(group){
   let message = 'Error in creating new group';
 
   if (result.affectedRows) {
-    message = 'group created successfully';
+    message = {"status" : 'group created successfully', "newId": result.insertId};
   }
 
   return {message};
@@ -257,7 +290,7 @@ async function createPrivate(pm){
   let message = 'Error in creating new pm';
 
   if (result.affectedRows) {
-    message = 'pm created successfully';
+    message = {"status" : 'pm created successfully', "newId": result.insertId};
   }
 
   return {message};
@@ -365,7 +398,7 @@ async function updateUser(id, user){
 async function updateGroup(id, group){
   const result = await db.query(
     `UPDATE \`group\` 
-    SET Contents="${group.name}"
+    SET Name="${group.Name}"
     WHERE idGroup=${id}` 
   );
 
@@ -384,6 +417,7 @@ async function updateGroup(id, group){
 module.exports = {
   getAll,
   getGroupMessages,
+  getPrivate,
   getPrivateMessages,
   getAllGroupMessages,
   getAllPrivateMessages,
@@ -404,5 +438,7 @@ module.exports = {
   updateUser,
   updateGroup,
   getGroups,
-  createPrivate
+  createPrivate,
+  getGroupMembership,
+  getMessagesForGroup
 }

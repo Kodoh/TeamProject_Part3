@@ -52,7 +52,19 @@ router.get('/groups', async function(req, res, next) {
   }
 });
 
-// returns all info associated with the group with :id
+
+// returns all users in group :id
+
+router.get('/groups/users/:id', async function(req, res, next) {
+  try {
+    res.json(await textChat.getGroupMembership(1,req.params.id));
+  } catch (err) {
+    console.error(`Error while getting groups `, err.message);
+    next(err);
+  }
+});
+
+// returns all info associated with group :id user is in
 
 router.get('/groups/:id', async function(req, res, next) {
   try {
@@ -74,12 +86,23 @@ router.get('/private', async function(req, res, next) {
   }
 });
 
+// returns all messages for group :id
+router.get('/groups/message/:id', async function(req, res, next) {
+  try {
+    res.json(await textChat.getMessagesForGroup(1,req.params.id));
+  } catch (err) {
+    console.error(`Error while getting groups `, err.message);
+    next(err);
+  }
+});
 
-// Returns info to do with private group associated with :id
+
+
+// Returns info to do with private group associated with user :id
 
 router.get('/private/:id', async function(req, res, next) {
   try {
-    res.json(await textChat.getAllPrivate());
+    res.json(await textChat.getPrivate(1,req.params.id));
   } catch (err) {
     console.error(`Error while getting private messages `, err.message);
     next(err);
@@ -194,7 +217,7 @@ router.post('/groups', async function(req, res, next) {
   }
 });
 
-// same as above
+// same as above but for a private group
 router.post('/private', async function(req, res, next) {
 
   const { error } = validateGroup(req.body);
@@ -362,7 +385,6 @@ function validateMembership(membership) {
 function validateGroup(group) {
   const schema = {
     Name: Joi.string()
-    .alphanum()
     .min(3)
     .max(30)
     .required(),
