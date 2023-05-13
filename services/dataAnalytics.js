@@ -78,6 +78,16 @@ async function team(req){
     }
 }
 
+async function projects(){
+    const rows = await database.query(
+        `SELECT * FROM \`project\`;`
+    );
+    const data = formatEmpty(rows);
+    return{
+        data
+    }
+}
+
 
 async function teamTasks(req){
     const rows = await database.query(
@@ -91,7 +101,7 @@ async function teamTasks(req){
 
 async function employeeTasks(req){
     const rows = await database.query(
-        `SELECT * FROM \`task_employee\` WHERE employee_id = ${req}`
+        `SELECT * FROM \`task\` WHERE task_id IN (SELECT task_id FROM task_employee WHERE employee_id = ${req}) `
     );
     const data = formatEmpty(rows);
     return{
@@ -174,7 +184,7 @@ async function taskCompletion(req){
 
 async function projectCompletion(req){
     const result = await database.query(
-        `SELECT sum(hoursCompleted)/sum(totalManhours) AS percentage FROM task WHERE project_id = ${req}`
+        `SELECT sum(hoursCompleted)/sum(totalManhours) AS percentage FROM task WHERE project_id IN (SELECT DISTINCT project_id FROM task WHERE task_id IN (SELECT task_id FROM task_employee WHERE employee_id = ${req})) ;`
     );
     const data = formatEmpty(result);
     return{
@@ -273,5 +283,6 @@ module.exports ={
     updateCompletedHours,
     updateTotalHours,
     updateDueDate,
-    daysRemaining
+    daysRemaining,
+    projects
 }
