@@ -1,15 +1,16 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { HStack, Button, Flex, Heading, Input, InputGroup, InputRightElement, useDisclosure, Stack, IconButton } from '@chakra-ui/react'
 import { Drawer, DrawerBody, DrawerFooter, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton } from '@chakra-ui/react'
+import { Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverBody } from '@chakra-ui/react'
 import { Select } from 'chakra-react-select'
 import { SettingsIcon } from '@chakra-ui/icons';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 function ChatView() {
     const { id } = useParams();
-    const location = useLocation();
     let lastSender = '';
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const [sent, setSent] = useState();
     const [groupInfo, setGroup] = useState([{}])
     const [messages, setMessages] = useState([{}])
     const [addSelectOptions, setAddEmployees] = useState([{}]);
@@ -57,9 +58,14 @@ function ChatView() {
     }
 
     async function fetchMessages() {
-        const response = await fetch(`/groups/${id}/messages`);
-        const messages = await response.json();
-        setMessages(messages.data)
+        try {
+            const response = await fetch(`/groups/${id}/messages`);
+            const messages = await response.json();
+            setMessages(messages.data)
+        } catch (error) {
+            console.error('There was an error fetching messages:', error)
+        }
+
     }
 
     async function fetchGroupUsers() {
@@ -83,13 +89,17 @@ function ChatView() {
     }
 
 
-    useLayoutEffect(() => {
-        console.log("location", location)
+    useEffect(() => {
         fetchGroupInfo();
         fetchGroupUsers();
         fetchAllUsers();
         fetchMessages();
-    }, [location])
+    }, [id])
+
+    useEffect(() => {
+        fetchGroupInfo();
+        fetchMessages();
+    }, [sent])
 
     const send = async (e) => {
         if (e.keyCode === 13) {
@@ -117,8 +127,67 @@ function ChatView() {
 
                 document.getElementById('message').value = '';
                 document.getElementById('message').focus();
-                fetchMessages();
+                setSent(!sent);
             }
+        }
+    }
+
+    const deleteMessage = async (id) => {
+        try {
+            await fetch(`/messages/${id}`, {
+                method: 'DELETE'
+            })
+            setSent(!sent)
+        } catch (error) {
+            console.error('There was an error deleting the message:', error)
+        }
+    }
+
+    const editMessage = async (id) => {
+        try {
+            const messageText = document.getElementById(id).value
+            if (messageText.trim() !== '') {
+                const messageData = {
+                    Contents: messageText
+                }
+
+                await fetch(`/messages/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(messageData)
+                })
+                setSent(!sent)
+            }
+
+        } catch (error) {
+            console.error('There was an error updating your message', error)
+        }
+    }
+
+    const updateChat = async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('nameInput').value;
+        try {
+            if (name.trim() !== '') {
+
+                const messageData = {
+                    Name: name
+                };
+
+
+                await fetch(`/groups/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(messageData),
+                });
+                setSent(!sent);
+            }
+        } catch (error) {
+            console.error('There was an error updating the chat name', error)
         }
     }
 
@@ -209,10 +278,10 @@ function ChatView() {
                     <DrawerBody>
                         <Stack>
 
-                            <InputGroup>
-                                <Input type='text' id='nameInput' value={groupInfo[0].Name} />
-                                <InputRightElement width='4.5rem'>
-                                    <Button onClick={send}>
+                            <InputGroup size='md'>
+                                <Input pr='5em' type='text' id='nameInput' defaultValue={groupInfo[0].Name} />
+                                <InputRightElement width='4.5rem' pr='0.5em'>
+                                    <Button onClick={updateChat} h='1.75rem' size='sm'>
                                         Rename
                                     </Button>
                                 </InputRightElement>
@@ -253,9 +322,9 @@ function ChatView() {
                 </DrawerContent>
             </Drawer>
             <Flex flexDir='column' flexGrow='1' position='relative'>
-                <Flex p='0.5em' justify='center' bg='teal.400'>
-                    <Heading>{groupInfo[0].Name}</Heading>
-                    <IconButton size='lg' ml='auto' mr='0' bg='teal.400' aria-label='Data Analytics' icon={<SettingsIcon />} onClick={onOpen} _hover={{ color: "white" }} _active={{ color: "white" }} />
+                <Flex p='0.5em' justify='center' bg='#535357'>
+                    <Heading color='whiteAlpha.900' pl='0.5em'>{groupInfo[0].Name}</Heading>
+                    <IconButton size='lg' ml='auto' mr='0' color='whiteAlpha.700' bg='' aria-label='Data Analytics' icon={<SettingsIcon />} onClick={onOpen} _hover={{ color: 'white', backgroundColor: '#F4442E' }} _active={{ color: "white" }} />
                 </Flex>
                 <div id='chatMessages' className='messages'>
                     {messages.map((message) => {
@@ -264,22 +333,62 @@ function ChatView() {
                         if (lastSender !== message.Sender) {
                             lastSender = message.Sender;
                             return (
-                                <div key={message.idMessages} className='message-wrapper'>
+                                <div className='message-wrapper'>
                                     <div className={isCurrentUser ? 'username user-username' : 'username'}>
                                         {message.Name}
                                     </div>
-                                    <div className={isCurrentUser ? 'message user-message' : 'message'}>
-                                        {message.Contents}
-                                    </div>
+                                    <Popover key={message.idMessages}>
+                                        <PopoverTrigger>
+                                            <div className={isCurrentUser ? 'message user-message' : 'message other-message'}>
+                                                {message.Contents}
+                                            </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent>
+                                            <PopoverArrow />
+                                            <PopoverBody>
+                                                <Stack>
+                                                    <HStack>
+                                                        <Input id={message.idMessages} defaultValue={message.Contents} />
+                                                        <Button colorScheme='orange' onClick={() => editMessage(message.idMessages)}>
+                                                            Edit
+                                                        </Button>
+                                                    </HStack>
+                                                    <Button colorScheme='red' onClick={() => deleteMessage(message.idMessages)}>
+                                                        Delete
+                                                    </Button>
+                                                </Stack>
+                                            </PopoverBody>
+                                        </PopoverContent>
+                                    </Popover>
                                 </div>
                             )
                         } else {
                             lastSender = message.Sender;
                             return (
                                 <div key={message.idMessages} className='message-wrapper'>
-                                    <div className={isCurrentUser ? 'message user-message' : 'message'}>
-                                        {message.Contents}
-                                    </div>
+                                    <Popover>
+                                        <PopoverTrigger>
+                                            <div className={isCurrentUser ? 'message user-message' : 'message'}>
+                                                {message.Contents}
+                                            </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent>
+                                            <PopoverArrow />
+                                            <PopoverBody>
+                                                <Stack>
+                                                    <HStack>
+                                                        <Input id={message.idMessages} defaultValue={message.Contents} />
+                                                        <Button colorScheme='orange' onClick={() => editMessage(message.idMessages)}>
+                                                            Edit
+                                                        </Button>
+                                                    </HStack>
+                                                    <Button colorScheme='red' onClick={() => deleteMessage(message.idMessages)}>
+                                                        Delete
+                                                    </Button>
+                                                </Stack>
+                                            </PopoverBody>
+                                        </PopoverContent>
+                                    </Popover>
                                 </div>
                             )
                         }

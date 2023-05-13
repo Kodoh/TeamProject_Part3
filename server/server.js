@@ -1,24 +1,20 @@
 const express = require('express');
 const app = express();
 app.use(express.json());
-const server = require('http').createServer(app);
 const textChat = require('./textChat/textChat');
 const Joi = require('joi');
-const cors = require('cors')
-
-
 
 
 function validateUser(user) {
     const schema = Joi.object({
         name: Joi.string()
-            .regex(/^[a-zA-Z]*$/, 'Characters only')
+            .regex(/^[a-zA-Z\s]*$/, 'Characters only')
             .min(3)
             .max(30)
             .required(),
 
-        password: Joi.string()
-            .regex(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/, '8 Characters long, atleast - 1 capital letter, 1 lowercase, 1 special char, 1 number')
+        email: Joi.string()
+            .regex(/^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$/, '8 Characters long, atleast - 1 capital letter, 1 lowercase, 1 special char, 1 number')
             .required()
     });
 
@@ -37,6 +33,17 @@ function validateMessage(message) {
 
         Sender: Joi.number()
             .required(),
+    });
+
+    return schema.validate(message);
+}
+
+function validateMessageUpdate(message) {
+    const schema = Joi.object({
+        Contents: Joi.string()
+            .min(1)
+            .max(140)
+            .required()
     });
 
     return schema.validate(message);
@@ -205,8 +212,7 @@ app.get('/privateMessages', async function (req, res, next) {
 
 app.get('/users', async function (req, res, next) {
     try {
-        res.json(await textChat.getAllUsers());
-        res.end();
+        res.status(200).json(await textChat.getAllUsers()).end();
     } catch (err) {
         console.error(`Error while getting users`, err.message);
         next(err);
@@ -259,7 +265,6 @@ app.post('/users/login', async function (req, res, next) {
 // Adds new message --> body = {Contents: "hello", Group_idGroup: 1, Sender: 2}
 
 app.post('/messages', async function (req, res, next) {
-
     const { error } = validateMessage(req.body);
     if (error) {
         res.status(400).send(error.details[0].message);
@@ -405,7 +410,6 @@ app.put('/users/:id', async function (req, res, next) {
 // modify group with :id + body
 
 app.put('/groups/:id', async function (req, res, next) {
-
     const { error } = validateGroup(req.body);
     if (error) {
         res.status(400).send(error.details[0].message);
@@ -413,7 +417,7 @@ app.put('/groups/:id', async function (req, res, next) {
     }
 
     try {
-        res.json(await textChat.updateGroup(req.params.id, req.body));
+        res.json(await textChat.updateGroupName(req.params.id, req.body));
     } catch (err) {
         console.error(`Error while updating group`, err.message);
         next(err);
@@ -424,7 +428,7 @@ app.put('/groups/:id', async function (req, res, next) {
 // modify message with :id + body
 
 app.put('/messages/:id', async function (req, res, next) {
-    const { error } = validateMessage(req.body);
+    const { error } = validateMessageUpdate(req.body);
     if (error) {
         res.status(400).send(error.details[0].message);
         return;
@@ -439,5 +443,4 @@ app.put('/messages/:id', async function (req, res, next) {
     res.end();
 });
 
-server.listen(5000, () => { console.log("Server started on port 5000") });
-module.exports = app;
+app.listen(5000, () => { console.log("Server started on port 5000") });

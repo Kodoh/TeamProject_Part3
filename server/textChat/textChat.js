@@ -194,6 +194,7 @@ async function getAllUsers(page = 1) {
         `SELECT * FROM user;`
     );
     const data = helper.emptyOrRows(rows);
+    console.log(data);
     const meta = { page };
 
     return {
@@ -385,7 +386,7 @@ async function removeMembership(membership) {
 async function updateMessage(id, newMessage) {
     const result = await db.query(
         `UPDATE messages 
-    SET Contents="${newMessage.content}"
+    SET Contents="${newMessage.Contents}"
     WHERE idMessages=${id};`
     );
 
@@ -402,7 +403,7 @@ async function updateMessage(id, newMessage) {
 async function updateUser(id, user) {
     const result = await db.query(
         `UPDATE user 
-    SET Name="${user.name}", Password = "${user.password}"
+    SET Name="${user.name}", email = "${user.email}"
     WHERE idUser=${id};`
     );
 
@@ -416,10 +417,10 @@ async function updateUser(id, user) {
 }
 
 
-async function updateGroup(id, group) {
+async function updateGroupName(id, group) {
     const result = await db.query(
         `UPDATE \`group\` 
-    SET Contents="${group.name}"
+    SET Name="${group.Name}"
     WHERE idGroup=${id};`
     );
 
@@ -462,6 +463,6 @@ module.exports = {
     getMembership,
     updateMessage,
     updateUser,
-    updateGroup,
+    updateGroupName,
     createPrivate
 }

@@ -31,7 +31,7 @@ export function DataTable({ data, columns }) {
                     <Tr key={headerGroup.id}>
                         {headerGroup.headers.map((header) => {
                             const meta = header.column.columnDef.meta;
-                            const isSortable = ["Employee", "Role", "Email"].includes(
+                            const isSortable = ["Name", "Role", "Email", "Member since"].includes(
                                 header.column.columnDef.header
                             );
                             return (
@@ -67,9 +67,7 @@ export function DataTable({ data, columns }) {
                 {table.getRowModel().rows.map((row) => (
                     <Tr key={row.id}>
                         <Td key={row.getVisibleCells().id}>
-                            {console.log(row.original.avatar)}
-
-                            <Avatar name={row.original.employee} src={row.original.avatar} />
+                            <Avatar name={row.original.Name} />
                         </Td>
                         {row.getVisibleCells().slice(1).map((cell) => {
                             const meta = cell.column.columnDef.meta;

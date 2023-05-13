@@ -52,16 +52,23 @@
 }
 
 .message {
-    display: inline-flex;
+    display: inline;
     padding: 8px 12px;
     border-radius: 12px;
     background-color: #4CAF50;
     color: white;
     margin: 4px 0;
-    max-width: 70%;
-    word-wrap: break-word;
-    width: fit-content;
+    max-width: 500px;
+    word-wrap: break-all;
     animation: fadeIn 0.3s ease;
+}
+
+.other-message {
+    margin-right: auto;
+}
+
+.message:hover {
+    cursor: pointer;
 }
 
 .message-wrapper {

@@ -1,32 +1,9 @@
 import '../App.css';
-import { Progress, Heading, CircularProgress, CircularProgressLabel, Button, HStack } from '@chakra-ui/react';
+import { Progress, Heading, CircularProgress, CircularProgressLabel, Button, HStack, useStatStyles } from '@chakra-ui/react';
 import { createColumnHelper } from '@tanstack/react-table';
 import { DataTable } from '../Components/DataTable';
 import { useNavigate } from 'react-router-dom';
-
-const data = [
-    {
-        avatar: "https://bit.ly/dan-abramov",
-        employee: "Tim Jennings",
-        email: "tim.jennings@example.com",
-        since: "July 14, 2015",
-        role: "Organizer"
-    },
-    {
-        avatar: "https://bit.ly/tioluwani-kolawole",
-        employee: "Nathan Roberts",
-        email: "nathan.roberts@example.com",
-        since: "November 28, 2015",
-        role: "Administrator"
-    },
-    {
-        avatar: "https://bit.ly/ryan-florence",
-        employee: "Georgia Young",
-        email: "georgia.young@example.com",
-        since: "March 13, 2014",
-        role: "Member"
-    }
-];
+import { useEffect, useState } from 'react';
 
 const columnHelper = createColumnHelper();
 
@@ -35,9 +12,9 @@ const columns = [
         cell: (info) => info.getValue(),
         header: ""
     }),
-    columnHelper.accessor("employee", {
+    columnHelper.accessor("Name", {
         cell: (info) => info.getValue(),
-        header: "Employee",
+        header: "Name",
         sortType: "basic",
     }),
     columnHelper.accessor("email", {
@@ -45,9 +22,10 @@ const columns = [
         header: "Email",
         sortType: "basic",
     }),
-    columnHelper.accessor("since", {
+    columnHelper.accessor("joindate", {
         cell: (info) => info.getValue(),
         header: "Member since",
+        sortType: "basic"
     }),
     columnHelper.accessor("role", {
         cell: (info) => info.getValue(),
@@ -59,22 +37,24 @@ const columns = [
 
 function App() {
     let navigate = useNavigate();
-    const redirectDataAnalytics = () => {
-        return navigate("/data-analytics")
+    const [users, setUsers] = useState([{}])
+
+    async function fetchUsers() {
+        try {
+            const response = await (await fetch('/users')).json()
+            setUsers(response.data)
+            console.log(response.data)
+        } catch (error) {
+            console.error('Error fetching users:', error)
+        }
     }
-    const redirectTextChat = () => {
-        return navigate("/text-chat")
-    }
+
+    useEffect(() => {
+        fetchUsers();
+    }, [])
 
     return (
         <div className="App">
-            <header>
-                <HStack justify="center">
-                    <Button onClick={redirectDataAnalytics}>Data Analytics</Button>
-                    <Button onClick={redirectTextChat}>Text Chat</Button>
-                </HStack>
-            </header>
-
             <div className="outer progress">
                 <Heading size="lg">Projects</Heading>
                 <div className="inner progress">
@@ -116,7 +96,7 @@ function App() {
             <div className="outer employees">
                 <Heading size="lg">Employees</Heading>
                 <div className="inner employees">
-                    <DataTable columns={columns} data={data} />
+                    <DataTable columns={columns} data={users} />
                 </div>
             </div>
         </div>
