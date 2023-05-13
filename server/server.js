@@ -8,14 +8,34 @@ const Joi = require('joi');
 function validateUser(user) {
     const schema = Joi.object({
         name: Joi.string()
-            .regex(/^[a-zA-Z\s]*$/, 'Characters only')
+            .regex(/^[a-zA-Z\s]*$/, 'Characters and spaces only')
             .min(3)
             .max(30)
             .required(),
 
         email: Joi.string()
-            .regex(/^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$/, '8 Characters long, atleast - 1 capital letter, 1 lowercase, 1 special char, 1 number')
+            .regex(/^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$/, 'Valid email')
             .required()
+    });
+
+    return schema.validate(user)
+}
+
+function validateNewUser(user) {
+    const schema = Joi.object({
+        name: Joi.string()
+            .regex(/^[a-zA-Z\s]*$/, 'Characters and spaces only')
+            .min(3)
+            .max(30)
+            .required(),
+
+        email: Joi.string()
+            .regex(/^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$/, 'Valid email')
+            .required(),
+
+        Password: Joi.string()
+            .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/, '1 lowercase letter, 1 uppercase letter, 1 number, 1 special character, atleast 8 character')
+            .required(),
     });
 
     return schema.validate(user)
@@ -234,18 +254,16 @@ app.get('/users/:id', async function (req, res, next) {
 
 // POST
 
-// Adds new user --> so in body add something like {name: "frank", password: "test"}
+// Adds new user --> so in body add something like {name: "frank", email: "frank@makeitall.com", password: "test"}
 app.post('/users', async function (req, res, next) {
-
-    const { error } = validateUser(req.body);
+    const { error } = validateNewUser(req.body);
     if (error) {
         res.status(400).send(error.details[0].message);
         return;
     }
 
     try {
-        res.json(await textChat.createUser(req.body));
-        res.end();
+        res.status(200).json(await textChat.createUser(req.body)).end();
     } catch (err) {
         console.error(`Error while creating user`, err.message);
         next(err);

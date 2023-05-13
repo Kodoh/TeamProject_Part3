@@ -1,7 +1,7 @@
 const db = require('./db');
 const helper = require('./helper');
 const config = require('./config');
-
+const bcrypt = require('bcrypt');
 
 // GET
 
@@ -22,7 +22,7 @@ async function getMessagesForGroup(page = 1, req) {
 async function getUsersForGroup(page = 1, req) {
     const offset = helper.getOffset(page, config.listPerPage);
     const rows = await db.query(
-        `SELECT * FROM user WHERE idUser IN (SELECT User_idUser FROM membership WHERE Group_idGroup = ${req});`
+        `SELECT idUser, Name, email, joindate, role  FROM user WHERE idUser IN (SELECT User_idUser FROM membership WHERE Group_idGroup = ${req});`
     );
     const data = helper.emptyOrRows(rows);
     const meta = { page };
@@ -191,10 +191,9 @@ async function getPrivate(page = 1, req) {
 async function getAllUsers(page = 1) {
     const offset = helper.getOffset(page, config.listPerPage);
     const rows = await db.query(
-        `SELECT * FROM user;`
+        `SELECT idUser, Name, email, joindate, role FROM user;`
     );
     const data = helper.emptyOrRows(rows);
-    console.log(data);
     const meta = { page };
 
     return {
@@ -206,7 +205,7 @@ async function getAllUsers(page = 1) {
 async function getUser(page = 1, req) {
     const offset = helper.getOffset(page, config.listPerPage);
     const rows = await db.query(
-        `SELECT * FROM user WHERE idUser = ${req};`
+        `SELECT idUser, Name, email, joindate, role FROM user WHERE idUser = ${req};`
     );
     const data = helper.emptyOrRows(rows);
     const meta = { page };
@@ -219,14 +218,19 @@ async function getUser(page = 1, req) {
 
 async function getUserByEmail(page = 1, req) {
     const offset = helper.getOffset(page, config.listPerPage);
-    const rows = await db.query(`SELECT * FROM user WHERE email = '${req.email}' AND Password = '${req.Password}';`);
-    const data = helper.emptyOrRows(rows);
+    const rows = await db.query(`SELECT * FROM user WHERE email = '${req.email}';`);
+    let data = helper.emptyOrRows(rows);
     const meta = { page };
-
+    const result = await bcrypt.compare(data[0].Password, req.Password);
+    if (!result) {
+        data = []
+    }
     return {
         data,
         meta
     };
+
+
 }
 
 // POST
@@ -234,20 +238,22 @@ async function getUserByEmail(page = 1, req) {
 
 
 async function createUser(user) {
+    const salt = await bcrypt.genSalt(10);
+    user.Password = await bcrypt.hash(user.Password, salt)
     const result = await db.query(
         `INSERT INTO user 
-    (Name, Password) 
+    (Name, Password, email, joindate, role) 
     VALUES 
-    ('${user.name}', '${user.password}');`
+    ('${user.name}', '${user.Password}', '${user.email}', (SELECT CURRENT_DATE()), 'Staff');`
     );
 
-    let message = 'Error in creating new user';
+    let data = 'Error in creating new user';
 
     if (result.affectedRows) {
-        message = 'user created successfully';
+        data = result.insertId;
     }
 
-    return { message };
+    return { data };
 }
 
 async function createMessage(m) {

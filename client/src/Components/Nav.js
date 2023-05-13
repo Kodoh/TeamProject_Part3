@@ -9,7 +9,7 @@ import {
     DrawerContent,
     DrawerCloseButton,
 } from '@chakra-ui/react'
-import { AtSignIcon, CalendarIcon, ChatIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, AtSignIcon, CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 
 
@@ -42,6 +42,10 @@ function Nav() {
         return navigate("/text-chat")
     }
 
+    const redirectLogout = () => {
+        return navigate("/")
+    }
+
     const submit = async () => {
         const name = document.getElementById('name').value
         const email = document.getElementById('email').value
@@ -64,10 +68,11 @@ function Nav() {
 
 
     return (
-        <Flex flexDir={'column'} bg='#262626' justify='center' gap='10px' px='0.5em'>
+        <Flex position='relative' flexDir={'column'} bg='#262626' justify='center' gap='10px' px='0.5em'>
             <IconButton color='whiteAlpha.700' bg='#3C3C3D' aria-label='Data Analytics' icon={<CalendarIcon />} onClick={redirectDataAnalytics} _hover={{ color: 'white', backgroundColor: '#F4442E' }} />
             <IconButton color='whiteAlpha.700' bg='#3C3C3D' aria-label='Text Chat' icon={<ChatIcon />} onClick={redirectTextChat} _hover={{ color: 'white', backgroundColor: '#F4442E' }} />
             <IconButton color='whiteAlpha.700' bg='#3C3C3D' aria-label='Text Chat' icon={<AtSignIcon />} onClick={onOpen} _hover={{ color: 'white', backgroundColor: '#F4442E' }} />
+            <IconButton position='absolute' bottom='1em' color='whiteAlpha.700' bg='#3C3C3D' aria-label='Text Chat' icon={<ArrowBackIcon />} onClick={redirectLogout} _hover={{ color: 'white', backgroundColor: '#F4442E' }} />
             <Drawer
                 isOpen={isOpen}
                 placement='left'
