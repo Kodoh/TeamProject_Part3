@@ -178,6 +178,16 @@ router.get('/dataAnalytics/projectCompletion/:id', async function(req,res,next){
     }
 });
 
+router.get('/dataAnalytics/projectNames/:id', async function (req,res,next){
+    try{
+        res.json(await dataAnalytics.projectNames(req.params.id));
+
+    } catch(err){
+        console.error(err.message);
+        next(err);
+    }
+});
+
 router.get('/dataAnalytics/employeeCompletion/:id', async function(req,res,next){
     try{
         res.json(await dataAnalytics.employeeCompletion(req.params.id));

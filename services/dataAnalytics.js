@@ -192,6 +192,16 @@ async function projectCompletion(req){
     }
 }
 
+async function projectNames(req){
+    const result = await database.query(
+        `SELECT distinct project_name, project_id FROM project WHERE project_id IN (SELECT DISTINCT project_id FROM task WHERE task_id IN (SELECT task_id FROM task_employee WHERE employee_id = 1)) ;`
+    );
+    const data = formatEmpty(result);
+    return{
+        data
+    }
+}
+
 async function employeeCompletion(req){
     const result = await database.query(
         `SELECT sum(task.hoursCompleted)/sum(task.totalManhours) AS percentage FROM task INNER JOIN task_employee ON task_employee.task_id = task.task_id WHERE task_employee.employee_id = ${req}`
@@ -284,5 +294,6 @@ module.exports ={
     updateTotalHours,
     updateDueDate,
     daysRemaining,
-    projects
+    projects,
+    projectNames
 }
