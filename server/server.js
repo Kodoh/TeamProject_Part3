@@ -440,3 +440,4 @@ app.put('/messages/:id', async function (req, res, next) {
 });
 
 server.listen(5000, () => { console.log("Server started on port 5000") });
+module.exports = app;
