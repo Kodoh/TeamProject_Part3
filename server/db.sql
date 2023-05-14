@@ -23,7 +23,7 @@ USE `mydb` ;
 CREATE TABLE IF NOT EXISTS `mydb`.`user` (
   `idUser` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NULL,
-  `Password` VARCHAR(45) NULL,
+  `Password` VARCHAR(100) NULL,
   `email` VARCHAR(50) NULL,
   `joindate` DATE NULL,
   `role` VARCHAR(45) NULL,
@@ -169,7 +169,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Task_Team` (
   `team_id` INT NOT NULL,
   PRIMARY KEY (`task_id`, `team_id`),
   INDEX `Task_Team_id_idx` (`team_id` ASC) VISIBLE,
-  CONSTRAINT `Task_Task_id`
+  CONSTRAINT `Task_Team_Task_id`
     FOREIGN KEY (`task_id`)
     REFERENCES `mydb`.`Task` (`task_id`)
     ON DELETE CASCADE
