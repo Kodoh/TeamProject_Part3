@@ -21,10 +21,10 @@ function Groups() {
 
     async function fetchGroups() {
         try {
-            const groups = await fetch(`/users/${sessionStorage.getItem('userId')}/groups`);
+            const groups = await fetch(`/textChat/users/${sessionStorage.getItem('userId')}/groups`);
             const groupsData = await groups.json();
 
-            const privateChats = await fetch(`/users/${sessionStorage.getItem('userId')}/private`);
+            const privateChats = await fetch(`/textChat/users/${sessionStorage.getItem('userId')}/private`);
             const privateData = await privateChats.json();
 
             setGroups(groupsData.data.concat(privateData.data));
@@ -43,7 +43,7 @@ function Groups() {
         }
 
         try {
-            const response = await fetch(`/groups`, {
+            const response = await fetch(`/textChat/groups`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -52,8 +52,9 @@ function Groups() {
             })
             if (response.status === 200) {
                 const responseData = await response.json();
-                const chatId = responseData.message;
-                const response2 = await fetch('/membership', {
+                const chatId = responseData.message.newId;
+                console.log(chatId)
+                const response2 = await fetch('/textChat/membership', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -73,7 +74,7 @@ function Groups() {
 
     const deleteGroup = async (id) => {
         try {
-            await fetch(`/groups/${id}`, {
+            await fetch(`/textChat/groups/${id}`, {
                 method: 'DELETE'
             });
 

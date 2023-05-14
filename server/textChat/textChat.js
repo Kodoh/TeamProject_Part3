@@ -454,7 +454,7 @@ async function updateUser(id, user) {
 async function updateGroupName(id, group) {
     const result = await db.query(
         `UPDATE \`group\` 
-      SET Name="${group.name}"
+      SET Name="${group.Name}"
       WHERE idGroup=${id}`
     );
 

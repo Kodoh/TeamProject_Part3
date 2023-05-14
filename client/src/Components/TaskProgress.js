@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 
 const TaskProgress = ({ tasks }) => {
     const [taskIndex, setTaskIndex] = useState(0)
-    console.log(tasks)
 
     const handleNextTask = () => {
         setTaskIndex(currentIndex => {
@@ -18,10 +17,6 @@ const TaskProgress = ({ tasks }) => {
     };
 
     useEffect(() => {
-        if (tasks.length > 0) {
-            console.log(taskIndex)
-            console.log(((tasks[taskIndex].hoursCompleted / tasks[taskIndex].totalManhours) * 100));
-        }
     }, [taskIndex])
 
     return (
@@ -31,7 +26,7 @@ const TaskProgress = ({ tasks }) => {
                 <div>
                     <Flex justify='space-between' align='center'>
                         <Heading size="md">{tasks.length === 0 ? 'No tasks' : tasks[taskIndex].task_name}</Heading>
-                        <Text as='b'>{taskIndex + 1}/{tasks.length}</Text>
+                        <Text as='b'>{Math.min(taskIndex + 1, tasks.length)}/{tasks.length}</Text>
                     </Flex>
                 </div>
                 <div className="circle">

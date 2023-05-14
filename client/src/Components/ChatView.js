@@ -12,7 +12,7 @@ function ChatView() {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [sent, setSent] = useState();
     const [groupInfo, setGroup] = useState([{}])
-    const [messages, setMessages] = useState([{}])
+    const [messages, setMessages] = useState([])
     const [addSelectOptions, setAddEmployees] = useState([{}]);
     const [selectedAdd, setAddSelected] = useState([{}]);
     const [removeSelectOptions, setRemoveEmployees] = useState([{}])
@@ -30,7 +30,7 @@ function ChatView() {
 
     async function fetchGroupInfo() {
         try {
-            const groupInfo = await (await fetch(`/groups/${id}`)).json();
+            const groupInfo = await (await fetch(`/textChat/groups/${id}`)).json();
             setGroup(groupInfo.data)
         } catch (error) {
             console.error('Error fetching group info:', error)
@@ -39,8 +39,8 @@ function ChatView() {
 
     async function fetchAllUsers() {
         try {
-            const allUsers = await (await fetch('/users')).json();
-            const groupUsers = await (await fetch(`/groups/${id}/users`)).json();
+            const allUsers = await (await fetch('/textChat/users')).json();
+            const groupUsers = await (await fetch(`/textChat/groups/${id}/users`)).json();
             const emps = [];
             allUsers.data.forEach((item) => {
                 if (!containsObject(item, groupUsers.data)) {
@@ -59,7 +59,7 @@ function ChatView() {
 
     async function fetchMessages() {
         try {
-            const response = await fetch(`/groups/${id}/messages`);
+            const response = await fetch(`/textChat/groups/${id}/messages`);
             const messages = await response.json();
             setMessages(messages.data)
         } catch (error) {
@@ -70,7 +70,7 @@ function ChatView() {
 
     async function fetchGroupUsers() {
         try {
-            const response = await fetch(`/groups/${id}/users`);
+            const response = await fetch(`/textChat/groups/${id}/users`);
             const data = await response.json();
             const emps = [];
             data.data.forEach((item) => {
@@ -117,7 +117,7 @@ function ChatView() {
                 };
 
 
-                await fetch('/messages', {
+                await fetch('/textChat/messages', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -134,7 +134,7 @@ function ChatView() {
 
     const deleteMessage = async (id) => {
         try {
-            await fetch(`/messages/${id}`, {
+            await fetch(`/textChat/messages/${id}`, {
                 method: 'DELETE'
             })
             setSent(!sent)
@@ -151,7 +151,7 @@ function ChatView() {
                     Contents: messageText
                 }
 
-                await fetch(`/messages/${id}`, {
+                await fetch(`/textChat/messages/${id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -177,7 +177,7 @@ function ChatView() {
                 };
 
 
-                await fetch(`/groups/${id}`, {
+                await fetch(`/textChat/groups/${id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -191,8 +191,12 @@ function ChatView() {
         }
     }
 
-    const handleChange = (selectedOptions) => {
+    const handleAddChange = (selectedOptions) => {
         setAddSelected(selectedOptions);
+    }
+
+    const handleRemoveChange = (selectedOptions) => {
+        setRemoveSelected(selectedOptions)
     }
 
     const addUser = async (e) => {
@@ -203,7 +207,7 @@ function ChatView() {
         })
         try {
             await Promise.all(participantIds.map(async (newId) => {
-                const response = await fetch('/membership', {
+                const response = await fetch('/textChat/membership', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -228,7 +232,7 @@ function ChatView() {
         })
         try {
             await Promise.all(participantIds.map(async (newId) => {
-                const response = await fetch('/membership', {
+                const response = await fetch('/textChat/membership', {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'
@@ -248,7 +252,7 @@ function ChatView() {
     const leaveGroup = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('/membership', {
+            const response = await fetch('/textChat/membership', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -293,7 +297,7 @@ function ChatView() {
                                 isMulti
                                 name="employee-select"
                                 options={addSelectOptions}
-                                onChange={handleChange}
+                                onChange={handleAddChange}
                                 placeholder='Select Employees to add' />
                             <Button onClick={addUser}>
                                 Add user
@@ -304,7 +308,7 @@ function ChatView() {
                                 isMulti
                                 name="employee-select"
                                 options={removeSelectOptions}
-                                onChange={handleChange}
+                                onChange={handleRemoveChange}
                                 placeholder='Select Employees to remove' />
                             <Button onClick={deleteUser}>
                                 Remove user

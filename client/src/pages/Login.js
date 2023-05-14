@@ -16,7 +16,7 @@ function Login() {
         e.preventDefault();
         if (signup) {
             try {
-                const res = await fetch('/users',
+                const res = await fetch('/textChat/users',
                     {
                         method: 'POST',
                         body: JSON.stringify({
@@ -27,11 +27,11 @@ function Login() {
                         headers: { "Content-Type": "application/json" }
                     })
                 const data = await res.json()
-                if (data.data) {
+                if (data.message) {
                     sessionStorage.setItem('userId', data.data); // Store the user ID in sessionStorage
                     return navigate('/text-chat');
                 } else {
-                    alert("Incorrect email or password");
+                    alert("Error");
                 }
             } catch (error) {
                 console.error("Error:", error);
@@ -39,7 +39,7 @@ function Login() {
             }
         } else {
             try {
-                const res = await fetch('/users/login',
+                const res = await fetch('/textChat/users/login',
                     {
                         method: 'POST',
                         body: JSON.stringify({

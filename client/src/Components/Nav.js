@@ -20,7 +20,7 @@ function Nav() {
 
     async function fetchUser() {
         try {
-            const response = await (await fetch(`/users/${sessionStorage.getItem('userId')}`)).json()
+            const response = await (await fetch(`/textChat/users/${sessionStorage.getItem('userId')}`)).json()
             setUser(response.data)
         } catch (error) {
             console.error('There was an error fetching your information', error)
@@ -51,7 +51,7 @@ function Nav() {
         const email = document.getElementById('email').value
 
         try {
-            await fetch(`/users/${sessionStorage.getItem('userId')}`, {
+            await fetch(`/textChat/users/${sessionStorage.getItem('userId')}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
