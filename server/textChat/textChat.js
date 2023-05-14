@@ -1,6 +1,6 @@
-const db = require('./db');
-const helper = require('./helper');
-const config = require('./config');
+const db = require('../db');
+const helper = require('../helper');
+const config = require('../config');
 const bcrypt = require('bcrypt');
 
 // GET
@@ -75,18 +75,18 @@ async function getPrivateMessages(page = 1, req) {
     }
 }
 
-async function getmessagesID(page = 1,req){
-  const offset = helper.getOffset(page, config.listPerPage);
-  const rows = await db.query(
-    `SELECT * FROM messages WHERE idMessages = ${req}`
-  );
-  const data = helper.emptyOrRows(rows);
-  const meta = {page};
+async function getmessagesID(page = 1, req) {
+    const offset = helper.getOffset(page, config.listPerPage);
+    const rows = await db.query(
+        `SELECT * FROM messages WHERE idMessages = ${req}`
+    );
+    const data = helper.emptyOrRows(rows);
+    const meta = { page };
 
-  return {
-    data,
-    meta
-  }
+    return {
+        data,
+        meta
+    }
 }
 
 async function getAllPrivateMessages(page = 1) {
@@ -202,18 +202,18 @@ async function getPrivate(page = 1, req) {
     }
 }
 
-async function getChat(page = 1,req){
-  const offset = helper.getOffset(page, config.listPerPage);
-  const rows = await db.query(
-    `SELECT * FROM \`group\` WHERE idGroup = ${req}`
-  );
-  const data = helper.emptyOrRows(rows);
-  const meta = {page};
+async function getChat(page = 1, req) {
+    const offset = helper.getOffset(page, config.listPerPage);
+    const rows = await db.query(
+        `SELECT * FROM \`group\` WHERE idGroup = ${req}`
+    );
+    const data = helper.emptyOrRows(rows);
+    const meta = { page };
 
-  return {
-    data,
-    meta
-  }
+    return {
+        data,
+        meta
+    }
 }
 
 async function getAllUsers(page = 1) {
@@ -249,15 +249,15 @@ async function getUserByEmail(page = 1, req) {
     const rows = await db.query(`SELECT * FROM user WHERE email = '${req.email}';`);
     let data = helper.emptyOrRows(rows);
     const meta = { page };
-    const result = await bcrypt.compare(data[0].Password, req.Password);
-    if (!result) {
+    const isMatch = await bcrypt.compare(req.Password, data[0].Password)
+    if (!isMatch) {
         data = []
     }
+
     return {
         data,
         meta
     };
-
 
 }
 
@@ -266,8 +266,8 @@ async function getUserByEmail(page = 1, req) {
 
 
 async function createUser(user) {
-    // const salt = await bcrypt.genSalt(10);
-    // user.Password = await bcrypt.hash(user.Password, salt)
+    const salt = bcrypt.genSaltSync(10);
+    user.Password = await bcrypt.hash(user.Password, salt)
     const result = await db.query(
         `INSERT INTO user 
     (Name, Password, email, joindate, role) 
@@ -278,193 +278,193 @@ async function createUser(user) {
     let message = 'Error in creating new user';
 
     if (result.affectedRows) {
-        message = {"status" : 'user created successfully', "newId": result.insertId};
+        message = { "status": 'user created successfully', "newId": result.insertId };
     }
 
     return { message };
 }
-  
-async function createMessage(m){
+
+async function createMessage(m) {
     const result = await db.query(
-      `INSERT INTO messages 
+        `INSERT INTO messages 
       (Contents, Group_idGroup, Sender) 
       VALUES
       ('${m.Contents}', ${m.Group_idGroup}, ${m.Sender})`
     );
-  
+
     let message = 'Error in creating new message';
-  
+
     if (result.affectedRows) {
-      message = {"status" : 'message created successfully', "newId": result.insertId};
+        message = { "status": 'message created successfully', "newId": result.insertId };
     }
-  
-    return {message};
+
+    return { message };
 }
-  
-async function createMembership(m){
+
+async function createMembership(m) {
     const result = await db.query(
-      `INSERT INTO membership 
+        `INSERT INTO membership 
       (User_idUser, Group_idGroup) 
       VALUES
       ('${m.userId}', ${m.groupId})`
     );
-  
+
     let message = 'Error in creating new membership';
-  
+
     if (result.affectedRows) {
-      message = {"status" : 'membership created successfully', "newId": result.insertId};
+        message = { "status": 'membership created successfully', "newId": result.insertId };
     }
-  
-    return {message};
+
+    return { message };
 }
-  
-async function createGroup(group){
+
+async function createGroup(group) {
     const result = await db.query(
-      `INSERT INTO \`group\` 
+        `INSERT INTO \`group\` 
       (Name, Private) 
       VALUES
       ('${group.Name}', 0)`
     );
-  
+
     let message = 'Error in creating new group';
-  
+
     if (result.affectedRows) {
-      message = {"status" : 'group created successfully', "newId": result.insertId};
+        message = { "status": 'group created successfully', "newId": result.insertId };
     }
-  
-    return {message};
+
+    return { message };
 }
-  
-async function createPrivate(pm){
+
+async function createPrivate(pm) {
     const result = await db.query(
-      `INSERT INTO \`group\` 
+        `INSERT INTO \`group\` 
       (Name, Private) 
       VALUES
       ('${pm.Name}', 1)`
     );
-  
+
     let message = 'Error in creating new pm';
-  
+
     if (result.affectedRows) {
-      message = {"status" : 'pm created successfully', "newId": result.insertId};
+        message = { "status": 'pm created successfully', "newId": result.insertId };
     }
-  
-    return {message};
+
+    return { message };
 }
-  
+
 // DELETE
-  
-  
-async function removeMessage(id){
+
+
+async function removeMessage(id) {
     const result = await db.query(
-      `DELETE FROM messages WHERE idMessages=${id}`
+        `DELETE FROM messages WHERE idMessages=${id}`
     );
-  
+
     let message = 'Error in deleting message';
-  
+
     if (result.affectedRows) {
-      message = 'message deleted successfully';
+        message = 'message deleted successfully';
     }
-  
-    return {message};
+
+    return { message };
 }
-  
-  
-async function removeUser(id){
+
+
+async function removeUser(id) {
     const result = await db.query(
-      `DELETE FROM user WHERE idUser=${id}`
+        `DELETE FROM user WHERE idUser=${id}`
     );
-  
+
     let message = 'Error in deleting user';
-  
+
     if (result.affectedRows) {
-      message = 'User deleted successfully';
+        message = 'User deleted successfully';
     }
-  
-    return {message};
+
+    return { message };
 }
-  
-async function removeGroup(id){
+
+async function removeGroup(id) {
     const result = await db.query(
-      `DELETE FROM \`group\` WHERE idGroup=${id}`
+        `DELETE FROM \`group\` WHERE idGroup=${id}`
     );
-  
+
     let message = 'Error in deleting group';
-  
+
     if (result.affectedRows) {
-      message = 'Group deleted successfully';
+        message = 'Group deleted successfully';
     }
-  
-    return {message};
+
+    return { message };
 }
-  
-  
-async function removeMembership(membership){
+
+
+async function removeMembership(membership) {
     const result = await db.query(
-      `DELETE FROM membership WHERE User_idUser = ${membership.userId} AND Group_idGroup = ${membership.groupId}`
+        `DELETE FROM membership WHERE User_idUser = ${membership.userId} AND Group_idGroup = ${membership.groupId}`
     );
-  
+
     let message = 'Error in deleting membership';
-  
+
     if (result.affectedRows) {
-      message = 'membership deleted successfully';
+        message = 'membership deleted successfully';
     }
-  
-    return {message};
+
+    return { message };
 }
-  
-  
-  // PUT
-  
-  
-async function updateMessage(id, newMessage){
+
+
+// PUT
+
+
+async function updateMessage(id, newMessage) {
     const result = await db.query(
-      `UPDATE messages 
+        `UPDATE messages 
       SET Contents="${newMessage.content}"
-      WHERE idMessages=${id}` 
+      WHERE idMessages=${id}`
     );
-  
+
     let message = 'Error in updating message - Id does not exist';
-  
+
     if (result.affectedRows) {
-      message = 'message updated successfully';
+        message = 'message updated successfully';
     }
-  
-    return {message};
+
+    return { message };
 }
-  
-  
-async function updateUser(id, user){
+
+
+async function updateUser(id, user) {
     const result = await db.query(
-      `UPDATE user 
+        `UPDATE user 
       SET Name="${user.name}", Password = "${user.password}"
-      WHERE idUser=${id}` 
+      WHERE idUser=${id}`
     );
-  
+
     let message = 'Error in updating user - Id does not exist';
-  
+
     if (result.affectedRows) {
-      message = 'User updated successfully';
+        message = 'User updated successfully';
     }
-  
-    return {message};
+
+    return { message };
 }
-  
-  
-async function updateGroupName(id, group){
+
+
+async function updateGroupName(id, group) {
     const result = await db.query(
-      `UPDATE \`group\` 
+        `UPDATE \`group\` 
       SET Name="${group.name}"
-      WHERE idGroup=${id}` 
+      WHERE idGroup=${id}`
     );
-  
+
     let message = 'Error in updating group - Id does not exist';
-  
+
     if (result.affectedRows) {
-      message = 'Group updated successfully';
+        message = 'Group updated successfully';
     }
-  
-    return {message};
+
+    return { message };
 }
 
 // EXPORT

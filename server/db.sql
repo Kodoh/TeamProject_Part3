@@ -134,7 +134,7 @@ ENGINE = InnoDB;
 -- Table `mydb`.`Team`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mydb`.`Team` (
-  `team_id` INT NOT NULL,
+  `team_id` INT NOT NULL AUTO_INCREMENT,
   `team_name` CHAR(50) NOT NULL,
   PRIMARY KEY (`team_id`))
 ENGINE = InnoDB;

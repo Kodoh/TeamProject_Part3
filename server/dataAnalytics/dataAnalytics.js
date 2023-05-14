@@ -1,0 +1,308 @@
+const database = require('../db');
+const config = require('../config');
+
+function formatEmpty(rows) {
+    if (!rows) {
+        return [];
+
+    }
+    return rows;
+}
+
+async function tasks() {
+    const rows = await database.query(
+        `SELECT * FROM \`task\`;`
+    );
+
+    const data = formatEmpty(rows);
+
+    return {
+        data
+    }
+}
+
+
+async function task(req) {
+
+    const rows = await database.query(
+        `SELECT * FROM \`task\` WHERE task_id = ${req}`
+    );
+
+    const data = formatEmpty(rows);
+    return {
+        data
+    }
+
+}
+
+async function employee(req) {
+
+    const rows = await database.query(
+        `SELECT * FROM \`user\` WHERE idUser = ${req}`
+    );
+    const data = formatEmpty(rows);
+    return {
+        data
+    }
+}
+
+
+async function employees() {
+    const rows = await database.query(
+        `SELECT * FROM \`user\`;`
+    );
+
+    const data = formatEmpty(rows);
+    return {
+        data
+    }
+}
+
+async function teams() {
+    const rows = await database.query(
+        `SELECT * FROM \`team\`;`
+    );
+    const data = formatEmpty(rows);
+    return {
+        data
+    }
+}
+
+async function team(req) {
+    const rows = await database.query(
+        `SELECT * FROM \`team\` WHERE team_id = ${req}`
+    );
+    const data = formatEmpty(rows);
+    return {
+        data
+    }
+}
+
+async function projects() {
+    // Returns every project, the calculated progress based on the manhours of associated tasks, and the number of employees working on tasks associated with the project
+
+    const rows = await database.query(
+        `SELECT 
+        project.*, 
+        sum(task.totalManhours) - sum(task.hoursCompleted) AS remaining_hours,
+        (sum(task.hoursCompleted)/sum(task.totalManhours)*100) AS progress, 
+        final_count.final AS total_employee_count
+    FROM 
+        project 
+        JOIN task ON project.project_id = task.project_id 
+        LEFT JOIN (SELECT employee_count.project_id,  COUNT(DISTINCT employee_count.employee_id) AS final FROM
+((SELECT 
+	project.project_id,
+	task_employee.employee_id AS employee_id
+FROM 
+	project 
+	JOIN task ON task.project_id = project.project_id
+	JOIN task_employee ON task_employee.task_id = task.task_id) 
+UNION
+(SELECT 
+	project.project_id,
+	team_employee.employee_id AS employee_id
+FROM 
+	project 
+	JOIN task ON task.project_id = project.project_id
+	JOIN task_team ON task_team.task_id = task.task_id
+	JOIN team_employee ON team_employee.team_id = task_team.team_id)) AS employee_count 
+GROUP BY employee_count.project_id) AS final_count ON project.project_id = final_count.project_id
+    GROUP BY project.project_id;`
+    );
+    const data = formatEmpty(rows);
+    return {
+        data
+    }
+}
+
+
+async function teamTasks(req) {
+    const rows = await database.query(
+        `SELECT * FROM \`task_team\` WHERE team_id = ${req}`
+    );
+    const data = formatEmpty(rows);
+    return {
+        data
+    }
+}
+
+async function employeeTasks(req) {
+    const rows = await database.query(
+        `SELECT * FROM \`task\` WHERE task_id IN (SELECT task_id FROM task_employee WHERE employee_id = ${req} UNION SELECT task_id FROM task_team JOIN team_employee ON task_team.team_id = team_employee.team_id WHERE employee_id = ${req}); `
+    );
+    const data = formatEmpty(rows);
+    return {
+        data
+    }
+}
+
+async function teamEmployees(req) {
+    const rows = await database.query(
+        `SELECT * FROM \`task_employee\` WHERE team_id = ${req}`
+    );
+    const data = formatEmpty(rows);
+    return {
+        data
+    }
+}
+
+async function addTeam(req) {
+    const result = await database.query(
+        `INSERT INTO \`team\`
+        (team_id, team_name)
+        VALUES
+        ('${req.id}', '${req.name}' )`
+    );
+
+    let message = 'Error adding team';
+
+    if (result.affectedRows) {
+        message = 'team added succesfully';
+    }
+
+    return { message };
+}
+
+async function addTask(req) {
+    const result = await database.query(
+        `INSERT INTO task
+        (task_id, project_id, task_name, hoursCompleted, totalManhours, task_status, start_date, end_date)
+        VALUES
+        ('${req.id}', '${req.project_id}', '${req.name}', '${req.hoursCompleted}', '${req.totalHours}', '${req.status}', '${req.start}', '${req.end}' )`
+    );
+
+    let message = 'Error adding task';
+
+    if (result.affectedRows) {
+        message = 'task added succesfully';
+    }
+
+    return { message };
+}
+
+async function taskCompletion(req) {
+    const result = await database.query(
+        `SELECT hoursCompleted/totalManhours AS percentage FROM task WHERE task_id = ${req}`
+    );
+
+    const data = formatEmpty(result);
+    return {
+        data
+    }
+}
+
+async function projectCompletion(req) {
+    const result = await database.query(
+        `SELECT sum(hoursCompleted)/sum(totalManhours) AS percentage FROM task WHERE project_id IN (SELECT DISTINCT project_id FROM task WHERE task_id IN (SELECT task_id FROM task_employee WHERE employee_id = ${req})) ;`
+    );
+    const data = formatEmpty(result);
+    return {
+        data
+    }
+}
+
+async function projectNames(req) {
+    const result = await database.query(
+        `SELECT distinct project_name, project_id FROM project WHERE project_id IN (SELECT DISTINCT project_id FROM task WHERE task_id IN (SELECT task_id FROM task_employee WHERE employee_id = 1)) ;`
+    );
+    const data = formatEmpty(result);
+    return {
+        data
+    }
+}
+
+async function employeeCompletion(req) {
+    const result = await database.query(
+        `SELECT sum(task.hoursCompleted)/sum(task.totalManhours) AS percentage FROM task INNER JOIN task_employee ON task_employee.task_id = task.task_id WHERE task_employee.employee_id = ${req}`
+    );
+    const data = formatEmpty(result);
+    return {
+        data
+    }
+}
+
+
+async function teamCompletion(req) {
+    const result = await database.query(
+        `SELECT sum(task.hoursCompleted)/sum(task.totalManhours) AS percentage FROM task  INNER JOIN task_team ON task_team.task_id = task.task_id WHERE task_team.team_id = ${req}`
+    );
+    const data = formatEmpty(result);
+    return {
+        data
+    }
+}
+
+
+async function updateCompletedHours(id, body) {
+    const result = await database.query(
+        `UPDATE task SET hoursCompleted = ${body.hours} WHERE task_id = ${id}`
+    );
+
+    let message = `Error updating hours completed`;
+
+    if (result.affectedRows) {
+        message = `Hours completed successfully added`;
+
+    }
+    return { message }
+}
+
+async function updateTotalHours(id, body) {
+    const result = await database.query(
+        `UPDATE task SET totalManhours = ${body.hours} WHERE task_id = ${id}`
+    );
+    let message = `Error updating total hours`;
+    if (result.affectedRows) {
+        message = `Total hours successfully updated`;
+    }
+    return { message }
+}
+
+async function updateDueDate(id, body) {
+    const result = await database.query(
+        `UPDATE task SET end_date = ${body.date} WHERE task_id = ${id}`
+    );
+    let message = `Error updating task due date`;
+    if (result.affectedRows) {
+        message = `Due date successfully updated`;
+    }
+    return { message }
+}
+
+async function daysRemaining(req) {
+
+    const result = await database.query(
+        `SELECT DATEDIFF(end_date,CURDATE()) FROM task WHERE task_id = ${req}`
+    );
+
+
+    const data = formatEmpty(result);
+    return {
+        data
+    }
+}
+
+module.exports = {
+    tasks,
+    task,
+    employee,
+    employees,
+    teams,
+    team,
+    teamTasks,
+    teamEmployees,
+    employeeTasks,
+    addTask,
+    addTeam,
+    taskCompletion,
+    projectCompletion,
+    employeeCompletion,
+    teamCompletion,
+    updateCompletedHours,
+    updateTotalHours,
+    updateDueDate,
+    daysRemaining,
+    projects,
+    projectNames
+} 

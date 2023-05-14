@@ -6,6 +6,7 @@ import {
     useReactTable,
     flexRender,
     getCoreRowModel,
+    SortingState,
     getSortedRowModel,
     sortingFns,
 } from "@tanstack/react-table";
@@ -66,10 +67,7 @@ export function DataTable({ data, columns }) {
             <Tbody>
                 {table.getRowModel().rows.map((row) => (
                     <Tr key={row.id}>
-                        <Td key={row.getVisibleCells().id}>
-                            <Avatar name={row.original.Name} />
-                        </Td>
-                        {row.getVisibleCells().slice(1).map((cell) => {
+                        {row.getVisibleCells().map((cell) => {
                             const meta = cell.column.columnDef.meta;
                             return (
                                 <Td key={cell.id} isNumeric={meta?.isNumeric}>

@@ -22,5 +22,9 @@ module.exports = function (app) {
             target: 'http://localhost:5000',
             changeOrigin: true
         }),
+        createProxyMiddleware('/dataAnalytics/', {
+            target: 'http://localhost:5000',
+            changeOrigin: true
+        })
     );
 };
