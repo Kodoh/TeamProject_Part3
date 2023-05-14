@@ -171,6 +171,63 @@ async function addTask(req){
     return {message};
 }
 
+
+async function addProject(req){
+    const result = await database.query(
+        `INSERT INTO project VALUES
+        ('${req.id}', '${req.name}', '${req.start}', '${req.end}', '${req.status}')`
+    );
+
+    let message = 'Error adding project';
+
+    if(result.affectedRows){
+        message = 'Project added succesfully';
+    }
+    return {message};
+}
+
+async function assignEmpToTask(req){
+    const result = await database.query(
+        `INSERT INTO task_employee VALUES ('${req.taskId}' , '${req.empId}')`
+    );
+
+    let message = 'Error assigning task';
+
+    if(result.affectedRows){
+        message = 'task assigned successfully';
+    }
+
+    return {message};
+}
+
+async function assignEmpToTeam(req){
+    const result = await database.query(
+        `INSERT INTO team_employee VALUES ('${req.teamId}' , '${req.empId}')`
+    );
+
+    let message = 'Error assigning employee';
+
+    if(result.affectedRows){
+        message = 'employee assigned successfully';
+    }
+
+    return {message};
+}
+
+async function assignTaskToTeam(req){
+    const result = await database.query(
+        `INSERT INTO task_team VALUES ('${req.taskId}' , '${req.teamId}')`
+    );
+
+    let message = 'Error assigning task';
+
+    if(result.affectedRows){
+        message = 'task assigned successfully';
+    }
+
+    return {message};
+}
+
 async function taskCompletion(req){
     const result = await database.query(
         `SELECT hoursCompleted/totalManhours AS percentage FROM task WHERE task_id = ${req}`
@@ -295,5 +352,9 @@ module.exports ={
     updateDueDate,
     daysRemaining,
     projects,
-    projectNames
+    projectNames,
+    assignEmpToTask,
+    assignEmpToTeam,
+    assignTaskToTeam,
+    addProject
 }

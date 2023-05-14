@@ -158,6 +158,71 @@ router.post('/dataAnalytics/addTask', async function(req, res, next){
     }
 });
 
+
+router.post('/dataAnalytics/addProject', async function(req,res,next){
+
+    const{error} = validateProject(req.body);
+    if(error){
+        res.status(400).send(error.details[0].message);
+        return;
+    }
+
+    try{
+        res.json(await dataAnalytics.addProject(req.body));
+
+    }catch(err){
+        console.error(err.message);
+        next(err);
+    }
+});
+
+router.post('/dataAnalytics/assignEmpToTask', async function(req, res,next){
+
+    const{error} = validateEmpTask(req.body);
+    if(error){
+        res.status(400).send(error.details[0].message);
+        return;
+    }
+
+    try{
+        res.json(await dataAnalytics.assignEmpToTask(req.body));
+    } catch (err){
+        console.error(err.message);
+        next(err);
+    }
+});
+
+router.post('/dataAnalytics/assignEmpToTeam', async function(req, res,next){
+    const{error} = validateTeamEmp(req.body);
+    if(error){
+        res.status(400).send(error.details[0].message);
+        return;
+    }
+
+    try{
+        res.json(await dataAnalytics.assignEmpToTeam(req.body));
+    } catch (err){
+        console.error(err.message);
+        next(err);
+    }
+});
+
+router.post('/dataAnalytics/assignTaskToTeam', async function(req, res,next){
+
+    const{error} = validateTeamTask(req.body);
+    if(error){
+        res.status(400).send(error.details[0].message);
+        return;
+    }
+    try{
+        res.json(await dataAnalytics.assignTaskToTeam(req.body));
+    } catch (err){
+        console.error(err.message);
+        next(err);
+    }
+});
+
+
 router.get('/dataAnalytics/taskCompletion/:id', async function(req, res, next){
     try{
         res.json(await dataAnalytics.taskCompletion(req.params.id));
@@ -336,6 +401,45 @@ function validateHours(input){
 function validateDate(input){
     const schema = Joi.object({
         date: Joi.date().required(),
+    });
+
+    return schema.validate(input);
+}
+
+function validateTeamTask(input){
+    const schema = Joi.object({
+        taskId: Joi.number().required(),
+        teamId: Joi.number().required(),
+    });
+
+    return schema.validate(input);
+}
+
+function validateTeamEmp(input){
+    const schema = Joi.object({
+        empId: Joi.number().required(),
+        teamId: Joi.number().required(),
+    });
+
+    return schema.validate(input);
+}
+
+function validateEmpTask(input){
+    const schema = Joi.object({
+        empId: Joi.number().required(),
+        taskId: Joi.number().required(),
+    });
+
+    return schema.validate(input);
+}
+
+function validateProject(input){
+    const schema = Joi.object({
+        id: Joi.number().required(),
+        name: Joi.string().alphanum().required(),
+        start: Joi.date().required(),
+        end: Joi.date().required(),
+        status: Joi.string.alphanum().required(),
     });
 
     return schema.validate(input);
