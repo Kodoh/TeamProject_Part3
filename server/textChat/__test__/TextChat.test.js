@@ -229,16 +229,16 @@ describe("POST", () => {
     "name": "Jake", 
     "password": "test^%*!(Ffnwenf12)",
     "email": "jake@gmail.com",
-    "joindate": 2001-10-11,
+    "joindate": "2001-10-11",
     "role": "employee"
   }
   it("should add a new user", async () => {
     const response = await request(app).post("/textChat/users").send(newValidUser);
-    const message = response.body.message
-    // const id = response.body.message["newId"]
+    const message = response.body.message["status"]
+    const id = response.body.message["newId"]
     expect(message).toEqual('user created successfully')
     expect(response.statusCode).toEqual(200);
-    //await request(app).delete(`/textChat/users/${id}`)
+    await request(app).delete(`/textChat/users/${id}`)
   });
   
   const newInvalidUser = {
