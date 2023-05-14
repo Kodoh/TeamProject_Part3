@@ -1,49 +1,88 @@
-import React from 'react';
-import { Container, Card, CardHeader, CardBody, Heading, Stack, Input, InputGroup, InputRightElement, Button, CardFooter } from '@chakra-ui/react'
+import React, { useState } from 'react';
+import { Link, HStack, Flex, Card, CardHeader, CardBody, Heading, Stack, Input, InputGroup, InputRightElement, Button, CardFooter } from '@chakra-ui/react'
 import { FormControl, FormLabel } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom';
 
 
 function Login() {
 
-    const [show, setShow] = React.useState(false)
+    const [show, setShow] = useState(false);
+    const [signup, setSignup] = useState(false);
     const handleClick = () => setShow(!show)
     let navigate = useNavigate();
 
 
     const submit = async (e) => {
         e.preventDefault();
-        try {
-            const res = await fetch('/users/login',
-                {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        email: document.getElementById("email").value,
-                        Password: document.getElementById("password").value
-                    }),
-                    headers: { "Content-Type": "application/json" }
-                })
-            const data = await res.json()
-            if (data.data[0]) {
-                sessionStorage.setItem('userId', data.data[0].idUser); // Store the user ID in sessionStorage
-                return navigate('/text-chat');
-            } else {
-                alert("Incorrect email or password");
+        if (signup) {
+            try {
+                const res = await fetch('/users',
+                    {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            name: document.getElementById('name').value,
+                            email: document.getElementById("email").value,
+                            Password: document.getElementById("password").value
+                        }),
+                        headers: { "Content-Type": "application/json" }
+                    })
+                const data = await res.json()
+                if (data.data) {
+                    sessionStorage.setItem('userId', data.data); // Store the user ID in sessionStorage
+                    return navigate('/text-chat');
+                } else {
+                    alert("Incorrect email or password");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred whilst signing in. Please try again.");
             }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("An error occurred. Please try again.");
+        } else {
+            try {
+                const res = await fetch('/users/login',
+                    {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            email: document.getElementById("email").value,
+                            Password: document.getElementById("password").value
+                        }),
+                        headers: { "Content-Type": "application/json" }
+                    })
+                const data = await res.json()
+                if (data.data[0]) {
+                    sessionStorage.setItem('userId', data.data[0].idUser); // Store the user ID in sessionStorage
+                    return navigate('/text-chat');
+                } else {
+                    alert("Incorrect email or password");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred whilst signing in. Please try again.");
+            }
         }
+
     }
 
     return (
-        <Container>
-            <Card align="center">
+        <Flex bg='#3C3C3D' h='100vh' justify='center' align='center'>
+            <Card align="center" boxShadow='dark-lg' py='1em' px='2em'>
                 <CardHeader>
-                    <Heading>Login</Heading>
+                    <Heading>Make It All</Heading>
                 </CardHeader>
                 <CardBody>
                     <Stack>
+                        {signup ?
+                            <FormControl isRequired>
+                                <FormLabel>Name</FormLabel>
+                                <Input
+                                    pr='4.5rem'
+                                    type='text'
+                                    placeholder='Enter name'
+                                    id='name'
+                                />
+                            </FormControl>
+                            :
+                            <></>}
                         <FormControl isRequired>
                             <FormLabel>Email</FormLabel>
                             <Input pr='4.5rem'
@@ -69,13 +108,27 @@ function Login() {
                         </FormControl>
                     </Stack>
                 </CardBody>
-                <CardFooter>
-                    <Button colorScheme='blue' onClick={submit}>
-                        Login
-                    </Button>
+                <CardFooter w='100%'>
+                    <Flex flexBasis='100%' justify='space-around' align='center'>
+                        {signup ?
+                            <>
+                                <Button variant='ghost' onClick={() => { setSignup(false) }}>Log in</Button>
+                                <Button bg='#F4442E' color='white' onClick={submit} _hover={{ color: 'white' }}>
+                                    Sign up
+                                </Button>
+                            </>
+                            :
+                            <>
+                                <Button variant='ghost' onClick={() => { setSignup(true) }}>Sign up</Button>
+                                <Button bg='#F4442E' color='white' onClick={submit} _hover={{ color: 'white' }}>
+                                    Login
+                                </Button>
+                            </>
+                        }
+                    </Flex>
                 </CardFooter>
             </Card>
-        </Container>
+        </Flex>
     );
 }
 

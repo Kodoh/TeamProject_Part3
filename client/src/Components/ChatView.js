@@ -368,7 +368,7 @@ function ChatView() {
                                 <div key={message.idMessages} className='message-wrapper'>
                                     <Popover>
                                         <PopoverTrigger>
-                                            <div className={isCurrentUser ? 'message user-message' : 'message'}>
+                                            <div className={isCurrentUser ? 'message user-message' : 'message other-message'}>
                                                 {message.Contents}
                                             </div>
                                         </PopoverTrigger>
