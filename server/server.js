@@ -13,7 +13,7 @@ function validateUser(user) {
             .max(30)
             .required(),
 
-        email: Joi.string()
+        password: Joi.string()
             .regex(/^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$/, '8 Characters long, atleast - 1 capital letter, 1 lowercase, 1 special char, 1 number')
             .required()
     });
@@ -74,7 +74,7 @@ function validateGroup(group) {
 // GET
 
 // Get Group messages for user with user id - :id eg - `localhost:3000/textChat/groupMessages/1` will return all messages associated with user 1
-app.get('/groupMessages/:id', async function (req, res, next) {
+app.get('/textChat/groupMessages/:id', async function (req, res, next) {
     try {
         res.json(await textChat.getGroupMessages(1, req.params.id));
         res.end();
@@ -87,7 +87,7 @@ app.get('/groupMessages/:id', async function (req, res, next) {
 
 // Returns all the groups that user :id is in 
 
-app.get('/membership/:id', async function (req, res, next) {
+app.get('/textChat/membership/:id', async function (req, res, next) {
     try {
         res.status(200);
         res.json(await textChat.getMembership(1, req.params.id));
@@ -100,7 +100,7 @@ app.get('/membership/:id', async function (req, res, next) {
 
 // returns all the private messages that a user (:id) has
 
-app.get('/privateMessages/:id', async function (req, res, next) {
+app.get('/textChat/privateMessages/:id', async function (req, res, next) {
     try {
         res.json(await textChat.getPrivateMessages(1, req.params.id));
         res.end();
@@ -112,7 +112,7 @@ app.get('/privateMessages/:id', async function (req, res, next) {
 
 // returns all group info `localhost:3000/textChat/groups`
 
-app.get('/groups', async function (req, res, next) {
+app.get('/textChat/groups', async function (req, res, next) {
     try {
         res.json(await textChat.getAllGroups());
         res.status(200)
@@ -125,7 +125,7 @@ app.get('/groups', async function (req, res, next) {
 
 // Returns groups the user with :id is associated with
 
-app.get('/users/:id/groups', async function (req, res, next) {
+app.get('/textChat/users/:id/groups', async function (req, res, next) {
     try {
         res.status(200).json(await textChat.getGroups(1, req.params.id)).end();
     } catch (err) {
@@ -136,7 +136,7 @@ app.get('/users/:id/groups', async function (req, res, next) {
 
 // Returns info on group with :id
 
-app.get('/groups/:id', async function (req, res, next) {
+app.get('/textChat/groups/:id', async function (req, res, next) {
     try {
         res.status(200).json(await textChat.getGroupInfo(1, req.params.id)).end();
     } catch (err) {
@@ -147,7 +147,7 @@ app.get('/groups/:id', async function (req, res, next) {
 
 // returns all messages and sender info for group :id
 
-app.get('/groups/:id/messages', async function (req, res, next) {
+app.get('/textChat/groups/:id/messages', async function (req, res, next) {
     try {
         res.status(200).json(await textChat.getMessagesForGroup(1, req.params.id))
         res.end();
@@ -159,7 +159,7 @@ app.get('/groups/:id/messages', async function (req, res, next) {
 
 // returns all users for group :id
 
-app.get('/groups/:id/users', async function (req, res, next) {
+app.get('/textChat/groups/:id/users', async function (req, res, next) {
     try {
         res.status(200).json(await textChat.getUsersForGroup(1, req.params.id))
         res.end();
@@ -171,7 +171,7 @@ app.get('/groups/:id/users', async function (req, res, next) {
 
 // Returns all private groups info
 
-app.get('/private', async function (req, res, next) {
+app.get('/textChat/private', async function (req, res, next) {
     try {
         res.json(await textChat.getAllPrivate());
         res.status(200)
@@ -185,7 +185,7 @@ app.get('/private', async function (req, res, next) {
 
 // Returns all private chats user with :id is associated with
 
-app.get('/users/:id/private', async function (req, res, next) {
+app.get('/textChat/private/:id', async function (req, res, next) {
     try {
         res.json(await textChat.getPrivate(1, req.params.id));
         res.status(200)
@@ -198,7 +198,7 @@ app.get('/users/:id/private', async function (req, res, next) {
 
 // Returns all private messages
 
-app.get('/privateMessages', async function (req, res, next) {
+app.get('/textChat/privateMessages', async function (req, res, next) {
     try {
         res.json(await textChat.getAllPrivateMessages());
         res.end();
@@ -210,7 +210,7 @@ app.get('/privateMessages', async function (req, res, next) {
 
 // returns info on all users
 
-app.get('/users', async function (req, res, next) {
+app.get('/textChat/users', async function (req, res, next) {
     try {
         res.status(200).json(await textChat.getAllUsers()).end();
     } catch (err) {
@@ -221,7 +221,7 @@ app.get('/users', async function (req, res, next) {
 
 // Returns info to do with user with :id 
 
-app.get('/users/:id', async function (req, res, next) {
+app.get('/textChat/users/:id', async function (req, res, next) {
     try {
         res.json(await textChat.getUser(1, req.params.id));
         res.end();
@@ -235,7 +235,7 @@ app.get('/users/:id', async function (req, res, next) {
 // POST
 
 // Adds new user --> so in body add something like {name: "frank", password: "test"}
-app.post('/users', async function (req, res, next) {
+app.post('/textChat/users', async function (req, res, next) {
 
     const { error } = validateUser(req.body);
     if (error) {
@@ -245,14 +245,15 @@ app.post('/users', async function (req, res, next) {
 
     try {
         res.json(await textChat.createUser(req.body));
-        res.end();
+        return;
     } catch (err) {
         console.error(`Error while creating user`, err.message);
         next(err);
     }
+    res.end();
 });
 
-app.post('/users/login', async function (req, res, next) {
+app.post('/textChat/users/login', async function (req, res, next) {
     try {
         res.json(await textChat.getUserByEmail(1, req.body));
         res.end();
@@ -264,7 +265,7 @@ app.post('/users/login', async function (req, res, next) {
 
 // Adds new message --> body = {Contents: "hello", Group_idGroup: 1, Sender: 2}
 
-app.post('/messages', async function (req, res, next) {
+app.post('/textChat/messages', async function (req, res, next) {
     const { error } = validateMessage(req.body);
     if (error) {
         res.status(400).send(error.details[0].message);
@@ -282,7 +283,7 @@ app.post('/messages', async function (req, res, next) {
 
 
 // Adds membership --> body = {userId: 1, groupId: 2}
-app.post('/membership', async function (req, res, next) {
+app.post('/textChat/membership', async function (req, res, next) {
     const { error } = validateMembership(req.body);
     if (error) {
         res.status(400).send(error.details[0].message);
@@ -300,7 +301,7 @@ app.post('/membership', async function (req, res, next) {
 
 // adds new group  --> body = {Name: "Group1"}        !! Note I was having some issues with this so let me know if it is working for you (same for /private)
 
-app.post('/groups', async function (req, res, next) {
+app.post('/textChat/groups', async function (req, res, next) {
 
     const { error } = validateGroup(req.body);
     if (error) {
@@ -318,7 +319,7 @@ app.post('/groups', async function (req, res, next) {
 });
 
 // same as above
-app.post('/private', async function (req, res, next) {
+app.post('/textChat/private', async function (req, res, next) {
     const { error } = validateGroup(req.body);
     if (error) {
         res.status(400).send(error.details[0].message);
@@ -339,7 +340,7 @@ app.post('/private', async function (req, res, next) {
 // DELETE
 
 // delete message with :id
-app.delete('/messages/:id', async function (req, res, next) {
+app.delete('/textChat/messages/:id', async function (req, res, next) {
     try {
         res.json(await textChat.removeMessage(req.params.id));
 
@@ -352,7 +353,7 @@ app.delete('/messages/:id', async function (req, res, next) {
 
 
 // delete membership --> body = {userId: 1, groupId: 2}
-app.delete('/membership', async function (req, res, next) {
+app.delete('/textChat/membership', async function (req, res, next) {
     try {
         res.json(await textChat.removeMembership(req.body));
     } catch (err) {
@@ -364,7 +365,7 @@ app.delete('/membership', async function (req, res, next) {
 
 
 // delete user :id
-app.delete('/users/:id', async function (req, res, next) {
+app.delete('/textChat/users/:id', async function (req, res, next) {
     try {
         res.json(await textChat.removeUser(req.params.id));
     } catch (err) {
@@ -376,7 +377,7 @@ app.delete('/users/:id', async function (req, res, next) {
 
 // delete group :id
 
-app.delete('/groups/:id', async function (req, res, next) {
+app.delete('/textChat/groups/:id', async function (req, res, next) {
     try {
         res.json(await textChat.removeGroup(req.params.id));
         res.status(200)
@@ -392,7 +393,7 @@ app.delete('/groups/:id', async function (req, res, next) {
 // add bodys for PUT will have the same format as their POST counterpart
 
 // modify user with :id + body
-app.put('/users/:id', async function (req, res, next) {
+app.put('/textChat/users/:id', async function (req, res, next) {
     const { error } = validateUser(req.body);
     if (error) {
         res.status(400).send(error.details[0].message);
@@ -409,7 +410,7 @@ app.put('/users/:id', async function (req, res, next) {
 
 // modify group with :id + body
 
-app.put('/groups/:id', async function (req, res, next) {
+app.put('/textChat/groups/:id', async function (req, res, next) {
     const { error } = validateGroup(req.body);
     if (error) {
         res.status(400).send(error.details[0].message);
@@ -427,7 +428,7 @@ app.put('/groups/:id', async function (req, res, next) {
 
 // modify message with :id + body
 
-app.put('/messages/:id', async function (req, res, next) {
+app.put('/textChat/messages/:id', async function (req, res, next) {
     const { error } = validateMessageUpdate(req.body);
     if (error) {
         res.status(400).send(error.details[0].message);
@@ -443,4 +444,4 @@ app.put('/messages/:id', async function (req, res, next) {
     res.end();
 });
 
-app.listen(5000, () => { console.log("Server started on port 5000") });
+module.exports = app.listen(5000, () => { console.log("Server started on port 5000") });
