@@ -13,9 +13,9 @@ function validateUser(user) {
             .max(30)
             .required(),
 
-        email: Joi.string()
-            .regex(/^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$/, 'Valid email')
-            .required()
+            password: Joi.string()
+            .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/, '1 lowercase letter, 1 uppercase letter, 1 number, 1 special character, atleast 8 character')
+            .required(),
     });
 
     return schema.validate(user)
@@ -130,6 +130,18 @@ app.get('/textChat/privateMessages/:id', async function (req, res, next) {
     }
 });
 
+// returns all the messages (:id)
+
+app.get('/textChat/messagesID/:id', async function(req, res, next) {
+    try {
+      res.json(await textChat.getmessagesID(1,req.params.id));
+      res.end();
+    } catch (err) {
+      console.error(`Error while getting messages `, err.message);
+      next(err);
+    }
+  });
+
 // returns all group info `localhost:3000/textChat/groups`
 
 app.get('/textChat/groups', async function (req, res, next) {
@@ -216,6 +228,17 @@ app.get('/textChat/private/:id', async function (req, res, next) {
     }
 });
 
+// Returns info to do with chats with id - :id
+
+app.get('/textChat/chat/:id', async function(req, res, next) {
+    try {
+      res.json(await textChat.getChat(1,req.params.id));
+    } catch (err) {
+      console.error(`Error while getting chat`, err.message);
+      next(err);
+    }
+  });
+
 // Returns all private messages
 
 app.get('/textChat/privateMessages', async function (req, res, next) {
@@ -255,7 +278,7 @@ app.get('/textChat/users/:id', async function (req, res, next) {
 // POST
 
 // Adds new user --> so in body add something like {name: "frank", email: "frank@makeitall.com", password: "test"}
-app.post('/users', async function (req, res, next) {
+app.post('/textChat/users', async function (req, res, next) {
     const { error } = validateNewUser(req.body);
     if (error) {
         res.status(400).send(error.details[0].message);

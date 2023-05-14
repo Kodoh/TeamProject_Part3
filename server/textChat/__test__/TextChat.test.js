@@ -193,7 +193,11 @@ describe('GET', () => {
 
                 Name: expect.any(String),
 
-                Password: expect.any(String),
+                email: expect.any(String),
+
+                joindate: expect.any(String),
+
+                role: expect.any(String)
             }),
         );
       });
@@ -214,7 +218,11 @@ describe('GET', () => {
 
                 Name: expect.any(String),
 
-                Password: expect.any(String),
+                email: expect.any(String),
+
+                joindate: expect.any(String),
+
+                role: expect.any(String)
             }),
         );
       });
@@ -226,11 +234,9 @@ describe('GET', () => {
 
 describe("POST", () => {
   const newValidUser = {
-    "name": "Jake", 
-    "password": "test^%*!(Ffnwenf12)",
-    "email": "jake@gmail.com",
-    "joindate": "2001-10-11",
-    "role": "employee"
+    "name": "frank", 
+    "email": "frank@makeitall.com", 
+    "Password": "8H2l$2DQTPOJ"
   }
   it("should add a new user", async () => {
     const response = await request(app).post("/textChat/users").send(newValidUser);
@@ -243,12 +249,13 @@ describe("POST", () => {
   
   const newInvalidUser = {
     "name": "Jake", 
-    "password": "test"
+    "email": "frank@makeitall.com",
+    "Password": "test"
   }
   it("should not allow invalid password", async () => {
     const response = await request(app).post("/textChat/users").send(newInvalidUser);
     const message = response.text
-    expect(message).toEqual("\"password\" with value \"test\" fails to match the 8 Characters long, atleast - 1 capital letter, 1 lowercase, 1 special char, 1 number pattern")
+    expect(message).toEqual("\"Password\" with value \"test\" fails to match the 1 lowercase letter, 1 uppercase letter, 1 number, 1 special character, atleast 8 character pattern")
     expect(response.statusCode).toEqual(400);
   });
 
@@ -309,8 +316,9 @@ describe("POST", () => {
 describe("DELETE", () => {
   it("Should delete user", async () => {
     const newValidUser = {
-      "name": "Jake", 
-      "password": "test^%*!(Ffnwenf12)"
+      "name": "frank", 
+      "email": "frank@makeitall.com", 
+      "Password": "8H2l$2DQTPOJ"
     }
     let response = await request(app).post("/textChat/users").send(newValidUser);
     let message = response.body.message["status"]
@@ -399,12 +407,13 @@ describe("DELETE", () => {
 describe("PUT", () => {
   it("should update user name and password", async () => {
     const updatedValidUser = {
-      "name": "Henry", 
-      "password": "updatedPassword123!"
+      "name": "frankie", 
+      "password": "8H2l$2DQTPOJ"
     }
     const newValidUser = {
-      "name": "Jake", 
-      "password": "test^%*!(Ffnwenf12)"
+      "name": "frank", 
+      "email": "frank@makeitall.com", 
+      "Password": "8H2l$2DQTPOJ"
     }
     let response = await request(app).post("/textChat/users").send(newValidUser);
     let message = response.body.message["status"]
@@ -437,9 +446,7 @@ describe("PUT", () => {
 
   it("Should update message", async () => {
     const updatedMessage = {
-      "Contents": "updatedGroup1",
-      "Group_idGroup": 1, 
-      "Sender": 2 
+      "Contents": "updatedGroup1"
     }
     const newValidMessage = {
       "Contents": "hello", 

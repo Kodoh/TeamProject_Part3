@@ -75,6 +75,20 @@ async function getPrivateMessages(page = 1, req) {
     }
 }
 
+async function getmessagesID(page = 1,req){
+  const offset = helper.getOffset(page, config.listPerPage);
+  const rows = await db.query(
+    `SELECT * FROM messages WHERE idMessages = ${req}`
+  );
+  const data = helper.emptyOrRows(rows);
+  const meta = {page};
+
+  return {
+    data,
+    meta
+  }
+}
+
 async function getAllPrivateMessages(page = 1) {
     const offset = helper.getOffset(page, config.listPerPage);
     const rows = await db.query(
@@ -188,6 +202,20 @@ async function getPrivate(page = 1, req) {
     }
 }
 
+async function getChat(page = 1,req){
+  const offset = helper.getOffset(page, config.listPerPage);
+  const rows = await db.query(
+    `SELECT * FROM \`group\` WHERE idGroup = ${req}`
+  );
+  const data = helper.emptyOrRows(rows);
+  const meta = {page};
+
+  return {
+    data,
+    meta
+  }
+}
+
 async function getAllUsers(page = 1) {
     const offset = helper.getOffset(page, config.listPerPage);
     const rows = await db.query(
@@ -238,8 +266,8 @@ async function getUserByEmail(page = 1, req) {
 
 
 async function createUser(user) {
-    const salt = await bcrypt.genSalt(10);
-    user.Password = await bcrypt.hash(user.Password, salt)
+    // const salt = await bcrypt.genSalt(10);
+    // user.Password = await bcrypt.hash(user.Password, salt)
     const result = await db.query(
         `INSERT INTO user 
     (Name, Password, email, joindate, role) 
@@ -250,7 +278,7 @@ async function createUser(user) {
     let message = 'Error in creating new user';
 
     if (result.affectedRows) {
-        message = 'user created successfully';
+        message = {"status" : 'user created successfully', "newId": result.insertId};
     }
 
     return { message };
@@ -448,6 +476,7 @@ module.exports = {
     getAll,
     getGroupMessages,
     getPrivateMessages,
+    getmessagesID,
     getAllGroupMessages,
     getAllPrivateMessages,
     getAllUsers,
@@ -465,6 +494,7 @@ module.exports = {
     getGroupInfo,
     getAllPrivate,
     getPrivate,
+    getChat,
     removeMembership,
     getMembership,
     updateMessage,
