@@ -70,7 +70,7 @@ export function DataTable({ data, columns }) {
             <Td key={row.getVisibleCells().id}>
               {console.log(row.original.avatar)}
 
-              <Avatar name={row.original.employee} src={row.original.avatar} />
+              <Avatar name={row.original.employee_name} src={row.original.avatar} />
             </Td>
             {row.getVisibleCells().slice(1).map((cell) => {
               const meta = cell.column.columnDef.meta;
