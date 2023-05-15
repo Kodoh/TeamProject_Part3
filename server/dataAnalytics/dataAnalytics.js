@@ -147,6 +147,24 @@ async function teamEmployees(req) {
     }
 }
 
+async function addEmployee(req) {
+    const result = await database.query(
+        `INSERT INTO \`employee\`
+        (employee_id, employee_name, email, joindate, role)
+        VALUES
+        ('${req.id}', '${req.name}', '${req.email}', '${req.joindate}', '${req.role}' )`
+    );
+
+    let message = 'Error adding employee';
+
+    if (result.affectedRows) {
+        message = 'employee added succesfully';
+    }
+
+    return { message };
+}
+
+
 async function addTeam(req) {
     const result = await database.query(
         `INSERT INTO \`team\`
@@ -176,6 +194,63 @@ async function addTask(req) {
 
     if (result.affectedRows) {
         message = 'task added succesfully';
+    }
+
+    return { message };
+}
+
+
+async function addProject(req) {
+    const result = await database.query(
+        `INSERT INTO project VALUES
+        ('${req.id}', '${req.name}', '${req.start}', '${req.end}', '${req.status}')`
+    );
+
+    let message = 'Error adding project';
+
+    if (result.affectedRows) {
+        message = 'Project added succesfully';
+    }
+    return { message };
+}
+
+async function assignEmpToTask(req) {
+    const result = await database.query(
+        `INSERT INTO task_employee VALUES ('${req.taskId}' , '${req.empId}')`
+    );
+
+    let message = 'Error assigning task';
+
+    if (result.affectedRows) {
+        message = 'task assigned successfully';
+    }
+
+    return { message };
+}
+
+async function assignEmpToTeam(req) {
+    const result = await database.query(
+        `INSERT INTO team_employee VALUES ('${req.teamId}' , '${req.empId}')`
+    );
+
+    let message = 'Error assigning employee';
+
+    if (result.affectedRows) {
+        message = 'employee assigned successfully';
+    }
+
+    return { message };
+}
+
+async function assignTaskToTeam(req) {
+    const result = await database.query(
+        `INSERT INTO task_team VALUES ('${req.taskId}' , '${req.teamId}')`
+    );
+
+    let message = 'Error assigning task';
+
+    if (result.affectedRows) {
+        message = 'task assigned successfully';
     }
 
     return { message };
@@ -292,6 +367,11 @@ module.exports = {
     team,
     teamTasks,
     teamEmployees,
+    addEmployee,
+    addProject,
+    assignEmpToTask,
+    assignEmpToTeam,
+    assignTaskToTeam,
     employeeTasks,
     addTask,
     addTeam,

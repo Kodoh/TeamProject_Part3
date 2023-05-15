@@ -27,8 +27,9 @@ function Login() {
                         headers: { "Content-Type": "application/json" }
                     })
                 const data = await res.json()
-                if (data.message) {
-                    sessionStorage.setItem('userId', data.data); // Store the user ID in sessionStorage
+                console.log(data);
+                if (data.message.newId) {
+                    sessionStorage.setItem('userId', data.message.newId); // Store the user ID in sessionStorage
                     return navigate('/text-chat');
                 } else {
                     alert("Error");
